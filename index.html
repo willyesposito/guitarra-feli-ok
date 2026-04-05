@@ -1,0 +1,3210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Guitarra con Feli 🎸</title>
+
+<!-- PWA: manifest inline via data URI -->
+<link rel="manifest" href="data:application/manifest+json,{
+  %22name%22:%22Guitarra%20con%20Feli%22,
+  %22short_name%22:%22Guitarra%20Feli%22,
+  %22description%22:%22App%20de%20guitarra%20para%20Feli%22,
+  %22start_url%22:%22.%22,
+  %22display%22:%22standalone%22,
+  %22background_color%22:%22%231A0A2E%22,
+  %22theme_color%22:%22%231A0A2E%22,
+  %22orientation%22:%22portrait%22,
+  %22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20rx='80'%20fill='%231A0A2E'/%3E%3Ctext%20x='256'%20y='330'%20font-size='300'%20text-anchor='middle'%3E%F0%9F%8E%B8%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%20maskable%22}]
+}">
+
+<!-- PWA meta -->
+<meta name="theme-color" content="#1A0A2E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Guitarra Feli">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Apple touch icon (emoji guitar as SVG) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%231A0A2E'/><text x='256' y='330' font-size='300' text-anchor='middle'>🎸</text></svg>">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* ── RESET & BASE ── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#1A0A2E;
+  --card:#2D1B4E;
+  --card2:#3D2460;
+  --pink:#FF6B9D;
+  --yellow:#FFD93D;
+  --teal:#4ECDC4;
+  --purple:#A855F7;
+  --orange:#FF8C42;
+  --green:#4ADE80;
+  --red:#FF4545;
+  --text:#F0E6FF;
+  --muted:rgba(240,230,255,.55);
+}
+html,body{
+  height:100%;width:100%;overflow:hidden;
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);color:var(--text);
+}
+
+/* ── STARFIELD ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 8% 12%,rgba(255,255,255,.7) 0%,transparent 100%),
+    radial-gradient(1px 1px at 22% 58%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(2px 2px at 43% 7%,rgba(255,255,255,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 66% 33%,rgba(255,255,255,.35) 0%,transparent 100%),
+    radial-gradient(1px 1px at 80% 72%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(2px 2px at 14% 83%,rgba(255,255,255,.45) 0%,transparent 100%),
+    radial-gradient(1px 1px at 55% 91%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 91% 18%,rgba(255,255,255,.55) 0%,transparent 100%),
+    radial-gradient(1px 1px at 37% 45%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(2px 2px at 74% 9%,rgba(255,255,255,.5) 0%,transparent 100%);
+}
+
+/* ── CANVAS ── */
+#cnv{position:fixed;inset:0;pointer-events:none;z-index:99;}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;top:12px;left:50%;
+  transform:translateX(-50%) translateY(-120px);
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  color:white;font-family:'Fredoka One',cursive;font-size:1rem;
+  padding:10px 22px;border-radius:50px;
+  box-shadow:0 6px 24px rgba(168,85,247,.5);
+  z-index:200;transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;max-width:90vw;text-align:center;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── APP SHELL: fixed 4-zone layout ── */
+#app{
+  position:fixed;inset:0;
+  display:flex;flex-direction:column;
+  z-index:1;
+  max-width:520px;margin:0 auto;
+}
+
+/* ZONE 1: Header */
+#zone-header{
+  flex-shrink:0;
+  padding:10px 16px 0;
+}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.hdr-day{
+  font-family:'Fredoka One',cursive;font-size:1rem;
+  background:linear-gradient(135deg,var(--pink),var(--yellow));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hdr-stars{
+  font-family:'Fredoka One',cursive;font-size:1rem;color:var(--yellow);
+  display:flex;align-items:center;gap:4px;
+}
+.hdr-rank{font-size:.72rem;color:var(--muted);font-weight:700;display:flex;align-items:center;gap:4px;}
+
+/* Progress bar */
+.step-bar{display:flex;gap:5px;padding-bottom:10px;}
+.step-pip{
+  flex:1;height:6px;border-radius:3px;
+  background:rgba(255,255,255,.12);transition:background .4s;
+}
+.step-pip.done{background:var(--teal);}
+.step-pip.active{background:var(--pink);box-shadow:0 0 8px rgba(255,107,157,.6);}
+
+/* ZONE 2: Content (fills remaining space) */
+#zone-content{
+  flex:1;overflow:hidden;
+  padding:0 16px;
+  display:flex;flex-direction:column;
+}
+
+/* ZONE 3: Footer button */
+#zone-footer{
+  flex-shrink:0;
+  padding:10px 16px 16px;
+}
+.main-btn{
+  width:100%;padding:16px;border-radius:18px;border:none;
+  font-family:'Fredoka One',cursive;font-size:1.2rem;
+  cursor:pointer;transition:all .2s;
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  color:white;box-shadow:0 6px 20px rgba(168,85,247,.45);
+}
+.main-btn:active{transform:scale(.97);}
+.main-btn.green{background:linear-gradient(135deg,var(--green),#16A34A);box-shadow:0 6px 20px rgba(74,222,128,.4);color:#071A0A;}
+.main-btn.teal{background:linear-gradient(135deg,var(--teal),#2dd4bf);box-shadow:0 6px 20px rgba(78,205,196,.4);color:#071A1A;}
+.main-btn.yellow{background:linear-gradient(135deg,var(--yellow),#B45309);box-shadow:0 6px 20px rgba(255,217,61,.4);color:#1A0F00;}
+.main-btn:disabled{opacity:.4;cursor:default;transform:none;}
+
+/* ── CONTENT BLOCKS ── */
+.content-block{
+  flex:1;display:flex;flex-direction:column;
+  animation:fadeIn .3s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.block-title{
+  font-family:'Fredoka One',cursive;font-size:1.35rem;
+  text-align:center;margin-bottom:8px;line-height:1.2;
+}
+.block-subtitle{
+  font-size:.82rem;color:var(--muted);text-align:center;
+  font-weight:600;margin-bottom:10px;line-height:1.4;
+}
+
+/* Card within content */
+.c-card{
+  background:var(--card);border-radius:16px;
+  padding:14px;margin-bottom:10px;
+  border:1px solid rgba(255,255,255,.07);
+  flex-shrink:0;
+}
+.c-card-title{
+  font-family:'Fredoka One',cursive;font-size:1rem;
+  color:var(--yellow);margin-bottom:8px;
+}
+.tip{
+  background:rgba(78,205,196,.1);border-left:3px solid var(--teal);
+  border-radius:0 10px 10px 0;padding:8px 12px;
+  font-size:.8rem;color:rgba(240,230,255,.85);line-height:1.5;margin:8px 0;
+  flex-shrink:0;
+}
+.tip strong{color:var(--teal);}
+
+/* ── GUITAR SVG BLOCK ── */
+.guitar-wrap{flex:1;display:flex;flex-direction:column;min-height:0;}
+.guitar-svg-container{flex:1;display:flex;justify-content:center;align-items:center;min-height:0;}
+.guitar-svg-container svg{max-height:100%;width:auto;}
+.part-buttons{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0;flex-shrink:0;}
+.part-btn{
+  padding:6px 12px;border-radius:16px;border:2px solid rgba(255,255,255,.12);
+  background:var(--card);color:var(--muted);
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:.75rem;
+  cursor:pointer;transition:all .2s;
+}
+.part-btn.sel{background:rgba(255,107,157,.15);border-color:var(--pink);color:var(--pink);}
+.part-desc{
+  background:rgba(255,107,157,.08);border-left:3px solid var(--pink);
+  border-radius:0 10px 10px 0;padding:10px 12px;
+  font-size:.8rem;color:rgba(240,230,255,.85);line-height:1.5;
+  display:none;flex-shrink:0;
+}
+.part-desc.show{display:block;}
+.part-desc strong{color:var(--pink);}
+.parts-progress{
+  display:flex;gap:4px;justify-content:center;margin:6px 0;flex-shrink:0;
+}
+.pp-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.15);}
+.pp-dot.done{background:var(--pink);}
+
+/* ── STRINGS BLOCK ── */
+.string-rows{display:flex;flex-direction:column;gap:7px;flex:1;justify-content:center;}
+.string-row{
+  background:var(--card2);border-radius:12px;padding:11px 14px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  border:2px solid transparent;transition:all .2s;
+}
+.string-row.played{border-color:rgba(255,255,255,.2);}
+.string-bar{border-radius:3px;flex-shrink:0;width:28px;}
+.string-row-info{flex:1;}
+.string-row-name{font-weight:800;font-size:.88rem;}
+.string-row-hint{font-size:.72rem;color:var(--muted);margin-top:1px;}
+.string-check{font-size:1.1rem;flex-shrink:0;}
+
+/* ── NOTES BLOCK ── */
+.notes-grid-7{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:5px;flex-shrink:0;
+}
+.note-card{
+  background:var(--card2);border-radius:10px;padding:8px 3px;
+  text-align:center;cursor:pointer;transition:all .2s;border:2px solid transparent;
+}
+.note-card.playing{
+  border-color:var(--yellow);background:rgba(255,217,61,.15);
+  transform:translateY(-3px);box-shadow:0 6px 18px rgba(255,217,61,.35);
+}
+.note-name{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--yellow);}
+.note-eng{font-size:.65rem;color:var(--teal);font-weight:700;margin-top:2px;}
+
+/* ── GUSANO BLOCK ── */
+.bella-track{
+  position:relative;height:52px;background:rgba(255,255,255,.04);
+  border-radius:12px;overflow:hidden;margin-bottom:8px;flex-shrink:0;
+}
+.bella-runner{
+  position:absolute;top:50%;transform:translateY(-50%);
+  font-size:2rem;transition:left .7s cubic-bezier(.25,.46,.45,.94);left:0%;line-height:1;
+}
+.bella-run{animation:bellaA .35s infinite;}
+@keyframes bellaA{0%,100%{transform:translateY(-50%) rotate(-3deg);}50%{transform:translateY(-62%) rotate(3deg);}}
+.fret-grid{display:flex;flex-direction:column;gap:3px;flex:1;min-height:0;overflow:hidden;}
+.fret-row-g{display:grid;gap:3px;}
+.fret-lbl-g{
+  font-size:.68rem;font-weight:800;display:flex;align-items:center;
+  padding:0 5px;border-radius:6px;
+}
+.fret-cell-g{
+  height:34px;background:rgba(255,255,255,.05);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;font-weight:700;color:rgba(240,230,255,.25);
+  border:2px solid transparent;transition:all .15s;
+}
+.fret-cell-g.cur{
+  background:linear-gradient(135deg,rgba(255,107,157,.35),rgba(168,85,247,.2));
+  border-color:var(--pink);color:white;font-size:.95rem;
+  box-shadow:0 0 12px rgba(255,107,157,.5);
+}
+.fret-cell-g.done{background:rgba(78,205,196,.1);border-color:rgba(78,205,196,.3);color:var(--teal);}
+.cur-pos-label{
+  text-align:center;padding:6px;flex-shrink:0;
+  font-family:'Fredoka One',cursive;font-size:1rem;color:var(--pink);min-height:36px;
+}
+.gusano-controls{display:flex;gap:8px;flex-shrink:0;margin-top:6px;}
+.g-btn{
+  flex:1;padding:11px;border-radius:12px;border:none;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;transition:all .2s;
+}
+.g-btn-go{background:linear-gradient(135deg,var(--teal),#2dd4bf);color:#071A1A;}
+.g-btn-pause{background:var(--card2);color:var(--muted);border:2px solid rgba(255,255,255,.1);}
+.g-btn-pause:disabled{opacity:.35;cursor:default;}
+
+/* ── METRO BLOCK ── */
+.sati-stage{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--card2);border-radius:18px;margin-bottom:10px;min-height:0;
+}
+.sati-emoji{font-size:4.5rem;display:block;transition:transform .08s;line-height:1;}
+.sati-emoji.beat{transform:scale(1.2) translateY(-8px);}
+.sati-tail{font-size:1.6rem;display:block;animation:tailWag 1s infinite;transform-origin:left center;}
+@keyframes tailWag{0%,100%{transform:rotate(-15deg);}50%{transform:rotate(15deg);}}
+.bpm-num{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--teal);line-height:1;margin:4px 0 0;}
+.bpm-lbl{font-size:.72rem;color:var(--muted);font-weight:700;}
+.beat-dots{display:flex;gap:7px;margin-top:10px;}
+.bdot{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.12);transition:all .08s;}
+.bdot.lit{background:var(--teal);border-color:var(--teal);box-shadow:0 0 10px var(--teal);}
+.bdot.lit1{background:var(--yellow);border-color:var(--yellow);box-shadow:0 0 10px var(--yellow);}
+.speed-row-m{display:flex;gap:6px;flex-shrink:0;margin-bottom:8px;}
+.spd-m{
+  flex:1;padding:9px 4px;border-radius:11px;border:2px solid rgba(255,255,255,.1);
+  background:var(--card);cursor:pointer;text-align:center;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:.75rem;color:var(--muted);transition:all .2s;
+}
+.spd-m.active{border-color:var(--teal);color:var(--teal);background:rgba(78,205,196,.1);}
+.spd-m .si{font-size:1.2rem;display:block;margin-bottom:1px;}
+.metro-ctrls{display:flex;gap:8px;flex-shrink:0;}
+
+/* ── QUIZ BLOCK ── */
+.quiz-q{
+  font-family:'Fredoka One',cursive;font-size:1.15rem;
+  text-align:center;line-height:1.35;margin-bottom:10px;flex-shrink:0;
+  background:var(--card2);border-radius:14px;padding:14px;
+}
+.timer-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px;flex-shrink:0;}
+.timer-ring-w{position:relative;width:58px;height:58px;flex-shrink:0;}
+.t-svg{transform:rotate(-90deg);}
+.t-bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:5;}
+.t-arc{fill:none;stroke:var(--yellow);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .1s linear,stroke .4s;}
+.t-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--yellow);}
+.pause-quiz-btn{
+  padding:8px 14px;border-radius:10px;
+  border:2px solid rgba(255,255,255,.15);background:var(--card2);
+  color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;
+  font-size:.8rem;cursor:pointer;transition:all .2s;
+}
+.pause-quiz-btn.paused{border-color:var(--teal);color:var(--teal);background:rgba(78,205,196,.1);}
+.answers-g{display:grid;grid-template-columns:1fr 1fr;gap:7px;flex:1;align-content:start;}
+.ans-g{
+  padding:12px 8px;border-radius:12px;border:2px solid rgba(255,255,255,.1);
+  background:var(--card);cursor:pointer;font-family:'Nunito',sans-serif;
+  font-weight:800;font-size:.85rem;color:var(--text);transition:all .2s;line-height:1.3;
+  text-align:center;
+}
+.ans-g:hover:not(:disabled){border-color:var(--yellow);background:rgba(255,217,61,.07);}
+.ans-g.ok{background:rgba(74,222,128,.18);border-color:var(--green);color:var(--green);}
+.ans-g.no{background:rgba(255,69,69,.14);border-color:var(--red);color:var(--red);}
+.q-score{display:flex;gap:5px;justify-content:center;margin-bottom:8px;flex-shrink:0;}
+.qs{font-size:1.2rem;opacity:.2;transition:all .2s;}
+.qs.on{opacity:1;animation:sPop .3s cubic-bezier(.34,1.56,.64,1);}
+@keyframes sPop{0%{transform:scale(0);}100%{transform:scale(1);}}
+.q-progress{font-size:.72rem;color:var(--muted);font-weight:700;text-align:center;margin-bottom:6px;flex-shrink:0;}
+
+/* ── POSTURE BLOCK ── */
+.posture-steps{display:flex;flex-direction:column;gap:8px;flex:1;justify-content:center;}
+.posture-step{
+  background:var(--card2);border-radius:12px;padding:12px 14px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  border:2px solid rgba(255,255,255,.06);transition:all .2s;
+}
+.posture-step.done{border-color:var(--green);}
+.ps-icon{font-size:1.8rem;flex-shrink:0;}
+.ps-info{flex:1;}
+.ps-title{font-weight:800;font-size:.9rem;}
+.ps-desc{font-size:.75rem;color:var(--muted);margin-top:2px;line-height:1.3;}
+.ps-check{font-size:1.2rem;}
+
+/* ── VIDEO BLOCK ── */
+.video-rec{
+  background:var(--card2);border-radius:16px;padding:16px;
+  display:flex;flex-direction:column;align-items:center;
+  gap:10px;flex:1;justify-content:center;text-align:center;
+}
+.video-thumb-big{font-size:4rem;}
+.video-title-big{font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--teal);}
+.video-desc-big{font-size:.82rem;color:var(--muted);line-height:1.5;}
+.video-link{
+  display:inline-block;padding:12px 22px;border-radius:14px;
+  background:linear-gradient(135deg,var(--teal),#2dd4bf);
+  color:#071A1A;font-family:'Fredoka One',cursive;font-size:1rem;
+  text-decoration:none;margin-top:4px;
+}
+
+/* ── TÍO ALE BLOCK ── */
+.ale-battle{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;
+}
+.ale-icon-big{
+  width:90px;height:90px;border-radius:50%;
+  background:linear-gradient(135deg,#FF4545,#C0392B);
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;border:3px solid rgba(255,255,255,.2);
+  box-shadow:0 0 30px rgba(255,69,69,.5);
+}
+.ale-bubble{
+  background:rgba(255,69,69,.1);border:2px solid rgba(255,69,69,.3);
+  border-radius:14px;padding:12px 16px;
+  font-family:'Fredoka One',cursive;font-size:.95rem;
+  color:var(--red);text-align:center;line-height:1.4;max-width:280px;
+}
+.ale-vs{
+  font-family:'Fredoka One',cursive;font-size:2rem;
+  background:linear-gradient(135deg,var(--yellow),var(--orange));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+/* ── LOCKED SCREEN ── */
+#locked-screen{
+  position:fixed;inset:0;z-index:50;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:max(20px,env(safe-area-inset-top)) 20px max(40px,env(safe-area-inset-bottom));
+  text-align:center;
+  animation:fadeIn .5s ease;
+}
+#locked-screen>div{
+  width:100%;max-width:460px;
+  display:flex;flex-direction:column;align-items:center;
+  padding-bottom:24px;
+}
+.lock-moon{font-size:5rem;margin-bottom:12px;animation:moonFloat 3s ease-in-out infinite;}
+@keyframes moonFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.lock-title{
+  font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:6px;
+  background:linear-gradient(135deg,var(--pink),var(--yellow),var(--teal));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.lock-msg{font-size:.9rem;color:var(--muted);line-height:1.6;margin-bottom:16px;max-width:320px;}
+.lock-learned{
+  background:var(--card);border-radius:16px;padding:14px 20px;
+  font-size:.88rem;font-weight:700;color:var(--text);
+  margin-bottom:14px;max-width:320px;line-height:1.5;
+}
+.lock-tomorrow{
+  background:rgba(78,205,196,.1);border:2px solid rgba(78,205,196,.2);
+  border-radius:14px;padding:10px 16px;
+  font-size:.82rem;color:var(--teal);font-weight:700;max-width:320px;
+}
+.lock-stats{display:flex;gap:16px;margin:14px 0;}
+.lock-stat{
+  background:var(--card);border-radius:12px;padding:12px 16px;text-align:center;flex:1;
+}
+.lock-stat-num{font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--yellow);}
+.lock-stat-lbl{font-size:.65rem;color:var(--muted);font-weight:700;margin-top:2px;}
+.lock-rank{
+  font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--yellow);
+  display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:14px;
+}
+.lock-next-day{
+  font-size:.78rem;color:rgba(240,230,255,.4);font-weight:600;margin-top:10px;
+}
+
+/* ── COMPLETE SCREEN (within session) ── */
+.complete-block{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:10px;text-align:center;padding:10px 0;
+}
+.complete-emoji{font-size:4rem;animation:popIn .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{0%{transform:scale(0);}100%{transform:scale(1);}}
+.complete-title{
+  font-family:'Fredoka One',cursive;font-size:1.6rem;
+  background:linear-gradient(135deg,var(--pink),var(--yellow));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.complete-learned{
+  background:var(--card2);border-radius:14px;padding:12px 16px;
+  font-size:.85rem;font-weight:700;line-height:1.5;max-width:300px;
+}
+.complete-stars{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--yellow);}
+.complete-tomorrow{
+  background:rgba(78,205,196,.1);border:2px solid rgba(78,205,196,.2);
+  border-radius:12px;padding:10px 14px;
+  font-size:.8rem;color:var(--teal);font-weight:700;max-width:300px;
+}
+
+/* ── PROGRESS MAP (shown in locked screen) ── */
+.progress-map{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;max-width:300px;margin:10px auto;}
+.pm-dot{
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--muted);
+}
+.pm-dot.done{background:var(--teal);border-color:var(--teal);color:#071A1A;}
+.pm-dot.today{background:var(--pink);border-color:var(--pink);color:white;box-shadow:0 0 10px var(--pink);}
+.pm-dot.rest{background:rgba(168,85,247,.3);border-color:var(--purple);color:var(--purple);}
+.pm-dot.battle{background:rgba(255,69,69,.3);border-color:var(--red);color:var(--red);}
+
+/* ── MELODY BLOCK ── */
+.melody-notes{display:flex;flex-direction:column;gap:6px;flex:1;justify-content:center;}
+.melody-step{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card2);border-radius:12px;padding:10px 14px;
+  border:2px solid transparent;transition:all .2s;cursor:pointer;
+}
+.melody-step.active-step{
+  border-color:var(--pink);background:rgba(255,107,157,.1);
+  box-shadow:0 0 12px rgba(255,107,157,.3);
+}
+.melody-step.done-step{border-color:rgba(78,205,196,.4);}
+.ms-note{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--card);display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka One',cursive;font-size:1rem;color:var(--yellow);flex-shrink:0;
+}
+.ms-info{flex:1;}
+.ms-string{font-weight:800;font-size:.85rem;}
+.ms-finger{font-size:.72rem;color:var(--muted);}
+.ms-check{font-size:1.1rem;}
+
+/* ── CHORD BLOCK ── */
+.chord-diagram{
+  background:var(--card2);border-radius:16px;padding:14px;
+  display:flex;justify-content:center;align-items:center;
+  flex:1;max-height:220px;
+}
+
+/* ── ANIMATIONS ── */
+/* ── CHALLENGE BLOCK ── */
+.challenge-wrap{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:14px;
+}
+.challenge-badge{
+  font-size:4rem;animation:popIn .5s cubic-bezier(.34,1.56,.64,1);
+}
+.challenge-box{
+  background:linear-gradient(135deg,rgba(255,140,66,.12),rgba(255,107,157,.08));
+  border:2px solid rgba(255,140,66,.35);
+  border-radius:18px;padding:18px 20px;
+  max-width:320px;text-align:center;
+}
+.challenge-task{
+  font-family:'Fredoka One',cursive;font-size:1.1rem;
+  line-height:1.4;color:var(--text);margin-bottom:12px;
+}
+.challenge-timer-ring{
+  position:relative;width:80px;height:80px;margin:0 auto 12px;
+}
+.challenge-timer-num{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--orange);
+}
+.challenge-bonus{
+  font-size:.78rem;color:var(--muted);font-weight:700;
+  background:rgba(255,255,255,.06);border-radius:8px;padding:5px 10px;
+  margin-top:4px;display:inline-block;
+}
+.challenge-done{
+  background:rgba(74,222,128,.12);border:2px solid rgba(74,222,128,.3);
+  border-radius:14px;padding:14px;text-align:center;margin-top:8px;
+  font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--green);
+  display:none;
+}
+.challenge-done.show{display:block;}
+.challenge-btns{display:flex;gap:10px;width:100%;max-width:320px;}
+
+/* ── RECORD BLOCK ── */
+.record-wrap{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:14px;
+}
+.record-mic{
+  width:90px;height:90px;border-radius:50%;
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.8rem;cursor:pointer;
+  box-shadow:0 0 0 0 rgba(255,107,157,.4);
+  transition:all .2s;
+}
+.record-mic.recording{
+  animation:recordPulse 1s infinite;
+  background:linear-gradient(135deg,var(--red),#C0392B);
+}
+@keyframes recordPulse{
+  0%{box-shadow:0 0 0 0 rgba(255,69,69,.5);}
+  70%{box-shadow:0 0 0 20px rgba(255,69,69,0);}
+  100%{box-shadow:0 0 0 0 rgba(255,69,69,0);}
+}
+.record-status{
+  font-family:'Fredoka One',cursive;font-size:1.1rem;
+  color:var(--muted);text-align:center;
+}
+.record-timer{
+  font-family:'Fredoka One',cursive;font-size:2.5rem;
+  color:var(--pink);line-height:1;
+}
+.record-waveform{
+  display:flex;align-items:center;gap:3px;height:40px;
+}
+.record-bar{
+  width:4px;border-radius:2px;background:var(--pink);
+  animation:waveAnim .6s ease-in-out infinite;
+}
+.record-bar:nth-child(2){animation-delay:.1s;}
+.record-bar:nth-child(3){animation-delay:.2s;}
+.record-bar:nth-child(4){animation-delay:.3s;}
+.record-bar:nth-child(5){animation-delay:.4s;}
+.record-bar:nth-child(6){animation-delay:.15s;}
+.record-bar:nth-child(7){animation-delay:.25s;}
+@keyframes waveAnim{
+  0%,100%{height:6px;opacity:.4;}
+  50%{height:30px;opacity:1;}
+}
+.playback-area{
+  background:var(--card2);border-radius:14px;padding:14px 16px;
+  text-align:center;width:100%;max-width:300px;
+}
+.play-rec-btn{
+  padding:12px 24px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,var(--teal),#2dd4bf);
+  color:#071A1A;font-family:'Fredoka One',cursive;font-size:1rem;
+  cursor:pointer;transition:all .2s;margin-top:8px;
+}
+
+/* ── RESPONSIVE: TABLET ── */
+#app{
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+#zone-header{padding:max(10px,env(safe-area-inset-top)) 18px 0;}
+#zone-footer{padding:10px 18px max(16px,env(safe-area-inset-bottom));}
+@media(min-width:600px){
+  #zone-header{padding-left:28px;padding-right:28px;}
+  #zone-content{padding:0 28px;}
+  #zone-footer{padding-left:28px;padding-right:28px;}
+  .block-title{font-size:1.55rem;}
+  .block-subtitle{font-size:.92rem;}
+  .main-btn{font-size:1.3rem;padding:18px;}
+  .ans-g{font-size:.95rem;padding:14px 10px;}
+  .quiz-q{font-size:1.25rem;}
+  .hdr-day{font-size:1.1rem;}
+  .hdr-stars{font-size:1.1rem;}
+  .sati-emoji{font-size:5.5rem;}
+  .bpm-num{font-size:3.5rem;}
+  .fret-cell-g{height:40px;}
+  .lock-title{font-size:2rem;}
+  .lock-stat-num{font-size:2.2rem;}
+}
+@media(min-width:900px){
+  #app{max-width:640px;}
+  #locked-screen>div{max-width:560px;}
+}
+
+/* ── PREVIOUS SESSIONS SIDEBAR ── */
+#prev-panel{
+  position:fixed;top:0;right:0;bottom:0;
+  width:min(320px,90vw);
+  background:var(--card);
+  z-index:60;
+  transform:translateX(110%);
+  transition:transform .35s cubic-bezier(.25,.46,.45,.94);
+  display:flex;flex-direction:column;
+  box-shadow:-8px 0 40px rgba(0,0,0,.5);
+  overflow:hidden;
+}
+#prev-panel.open{transform:translateX(0);}
+.prev-panel-header{
+  padding:max(18px,env(safe-area-inset-top)) 16px 14px;
+  background:var(--card2);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.prev-panel-title{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--yellow);}
+.prev-close{
+  width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.15);
+  background:transparent;color:var(--muted);font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.prev-close:hover{background:rgba(255,255,255,.1);color:var(--text);}
+.prev-list{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:12px;display:flex;flex-direction:column;gap:8px;
+}
+.prev-item{
+  background:var(--card2);border-radius:12px;padding:11px 13px;
+  display:flex;align-items:center;gap:10px;
+  border:2px solid rgba(255,255,255,.06);
+}
+.prev-item.done{border-color:rgba(78,205,196,.25);}
+.prev-num{
+  font-family:'Fredoka One',cursive;font-size:1rem;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--card);display:flex;align-items:center;justify-content:center;
+  color:var(--muted);flex-shrink:0;
+}
+.prev-item.done .prev-num{background:rgba(78,205,196,.2);color:var(--teal);}
+.prev-info{flex:1;min-width:0;}
+.prev-title{font-weight:800;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prev-type{font-size:.68rem;color:var(--muted);margin-top:1px;}
+.prev-redo{
+  padding:7px 11px;border-radius:9px;border:none;
+  background:rgba(255,107,157,.15);color:var(--pink);
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:.75rem;
+  cursor:pointer;transition:all .2s;flex-shrink:0;
+}
+.prev-redo:hover{background:rgba(255,107,157,.3);}
+#prev-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:59;display:none;backdrop-filter:blur(2px);
+}
+#prev-overlay.open{display:block;}
+
+/* ── PIN MODAL ── */
+.pin-key{
+  padding:16px 8px;border-radius:14px;border:2px solid rgba(255,255,255,.1);
+  background:var(--card2);color:var(--text);
+  font-family:'Fredoka One',cursive;font-size:1.4rem;cursor:pointer;
+  transition:all .15s;
+}
+.pin-key:hover{background:var(--card);border-color:rgba(255,255,255,.25);}
+.pin-key:active{transform:scale(.93);}
+.pin-clear{color:var(--red);}
+.pin-del{color:var(--yellow);}
+
+@keyframes pinShake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-8px);}40%,80%{transform:translateX(8px);}}
+.pin-shake{animation:pinShake .4s ease;}
+@keyframes pinSuccess{0%{transform:scale(1);}50%{transform:scale(1.15);}100%{transform:scale(1);}}
+.pin-success{animation:pinSuccess .3s ease;}
+
+@keyframes rainbowShift{0%{background-position:0% center;}100%{background-position:200% center;}}
+.rainbow{
+  background:linear-gradient(90deg,#FF6B9D,#FF8C42,#FFD93D,#4ECDC4,#A855F7,#FF6B9D);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  background-size:200% auto;animation:rainbowShift 3s linear infinite;
+}
+</style>
+</head>
+<body>
+
+<canvas id="cnv"></canvas>
+<div class="toast" id="toast">🌟</div>
+
+<!-- ═══════════════════════════════════
+     LOCKED SCREEN
+════════════════════════════════════ -->
+<div id="locked-screen" style="display:none;">
+  <div style="position:relative;z-index:1;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;">
+    <div class="lock-moon">🌙</div>
+    <div class="lock-title">¡Listo por hoy, Feli!</div>
+    <div class="lock-msg" id="lock-msg">Descansá los dedos. La guitarra te espera mañana.</div>
+    <div class="lock-learned" id="lock-learned">Hoy aprendiste algo nuevo 🎸</div>
+    <div class="lock-rank" id="lock-rank">🐭 Judy Hopps Rookie</div>
+    <div class="lock-stats">
+      <div class="lock-stat">
+        <div class="lock-stat-num" id="lock-stars">0</div>
+        <div class="lock-stat-lbl">⭐ Estrellas</div>
+      </div>
+      <div class="lock-stat">
+        <div class="lock-stat-num" id="lock-days">0</div>
+        <div class="lock-stat-lbl">📅 Días activos</div>
+      </div>
+      <div class="lock-stat">
+        <div class="lock-stat-num" id="lock-streak">0</div>
+        <div class="lock-stat-lbl">🔥 Racha</div>
+      </div>
+    </div>
+    <div class="progress-map" id="lock-map"></div>
+    <div class="lock-tomorrow" id="lock-tomorrow">🌅 Mañana: ¡nueva sesión!</div>
+    <div class="lock-next-day" id="lock-next-day"></div>
+    <button onclick="openPrevPanel()" style="margin-top:12px;padding:10px 20px;border-radius:12px;border:2px solid rgba(255,255,255,.12);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;transition:all .2s;" onmouseover="this.style.color=getComputedStyle(document.documentElement).getPropertyValue('--text')" onmouseout="this.style.color=''">📚 Rehacer un día anterior</button>
+    <div style="display:flex;gap:10px;margin-top:14px;width:100%;max-width:320px;">
+      <button onclick="exportProgress()" style="flex:1;padding:10px;border-radius:12px;border:2px solid rgba(255,255,255,.1);background:var(--card2);color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;font-size:.8rem;cursor:pointer;">📥 Guardar progreso</button>
+      <label style="flex:1;padding:10px;border-radius:12px;border:2px solid rgba(255,255,255,.1);background:var(--card2);color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;font-size:.8rem;cursor:pointer;text-align:center;">
+        📤 Cargar progreso
+        <input type="file" accept=".json" style="display:none;" onchange="importProgress(event)">
+      </label>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;width:100%;max-width:320px;">
+      <button onclick="askPin('day')" style="flex:1;padding:10px;border-radius:12px;border:2px solid rgba(255,69,69,.2);background:rgba(255,69,69,.07);color:rgba(255,100,100,.8);font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;cursor:pointer;">🔄 Reiniciar día</button>
+      <button onclick="askPin('all')" style="flex:1;padding:10px;border-radius:12px;border:2px solid rgba(255,69,69,.2);background:rgba(255,69,69,.07);color:rgba(255,100,100,.8);font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;cursor:pointer;">⚠️ Reiniciar todo</button>
+    </div>
+  </div>
+</div>
+
+<!-- PREVIOUS SESSIONS SIDEBAR -->
+<div id="prev-overlay" onclick="closePrevPanel()"></div>
+<div id="prev-panel">
+  <div class="prev-panel-header">
+    <div class="prev-panel-title">📚 Días anteriores</div>
+    <button class="prev-close" onclick="closePrevPanel()">✕</button>
+  </div>
+  <div class="prev-list" id="prev-list"></div>
+</div>
+
+<!-- PIN MODAL -->
+<div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(10,5,20,.92);z-index:300;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);">
+  <div style="background:var(--card);border-radius:22px;padding:28px 24px;max-width:320px;width:100%;text-align:center;border:1px solid rgba(255,255,255,.1);">
+    <div style="font-size:2.2rem;margin-bottom:8px;" id="pin-icon">🔒</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--yellow);margin-bottom:6px;" id="pin-title">Clave de papá o mamá</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:18px;" id="pin-desc">Ingresá la clave para continuar</div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:18px;" id="pin-dots">
+      <div style="width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:transparent;" id="pd0"></div>
+      <div style="width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:transparent;" id="pd1"></div>
+      <div style="width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:transparent;" id="pd2"></div>
+      <div style="width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:transparent;" id="pd3"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;" id="pin-pad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key pin-clear" onclick="pinClear()">✕</button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key pin-del" onclick="pinDel()">⌫</button>
+    </div>
+    <button onclick="closePinModal()" style="width:100%;padding:11px;border-radius:12px;background:var(--card2);border:none;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;">← Cancelar</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     APP SHELL
+════════════════════════════════════ -->
+<div id="app">
+  <!-- HEADER -->
+  <div id="zone-header">
+    <div class="hdr-row">
+      <div>
+        <div class="hdr-day" id="hdr-day">Día 1</div>
+        <div class="hdr-rank" id="hdr-rank"><span id="hdr-rank-icon">🐭</span> Judy Hopps Rookie</div>
+      </div>
+      <div class="hdr-stars">⭐ <span id="hdr-stars">0</span></div>
+    </div>
+    <div class="step-bar" id="step-bar"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="zone-content">
+    <!-- injected by JS -->
+  </div>
+
+  <!-- FOOTER -->
+  <div id="zone-footer">
+    <button class="main-btn" id="main-btn" onclick="handleMainBtn()">Siguiente →</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+const S = {
+  stars: 0,
+  daysCompleted: 0,
+  streak: 0,
+  currentDay: 1,
+  currentStep: 0,
+  sessionDone: false,
+  stickers: [],
+};
+
+function save(){ try{localStorage.setItem('feli_v3',JSON.stringify(S));}catch(e){} }
+function load(){
+  try{
+    const d=localStorage.getItem('feli_v3');
+    if(d) Object.assign(S,JSON.parse(d));
+  }catch(e){}
+}
+
+function addStars(n){
+  S.stars+=n;
+  updateHeader();
+  save();
+}
+
+// ════════════════════════════════════════════
+// CURRICULUM — 30 DAYS
+// ════════════════════════════════════════════
+// Step types: 'parts','strings','notes','gusano','metro','quiz','posture','video','ale','melody','chord','complete'
+const DAYS = [
+  // ── SEMANA 1: Conocer el instrumento ──
+  {
+    day:1,type:'session',
+    title:'¡Hola, Feli! 🎸',
+    steps:[
+      {type:'posture',
+       content:{
+         title:'Cómo sentarse con la guitarra',
+         subtitle:'Antes de tocar, hay que estar cómoda. Hacé cada paso y tocalo cuando lo tengas.',
+         steps:[
+           {icon:'🪑',title:'Sentate en una silla sin apoyabrazos',desc:'La espalda derecha, los pies en el piso.'},
+           {icon:'🎸',title:'La guitarra va sobre tu pierna izquierda',desc:'El cuerpo toca tu barriga suavemente.'},
+           {icon:'📐',title:'El mástil apunta arriba y a la izquierda',desc:'Como si apuntaras hacia las 10 en un reloj.'},
+           {icon:'🖐️',title:'Mano derecha sobre la boca de la guitarra',desc:'Suelta, sin tensar el brazo.'},
+         ]
+       },
+       stars:2
+      },
+      {type:'parts',
+       content:{
+         title:'Las partes de la guitarra',
+         subtitle:'Tocá cada nombre para descubrir qué es. ¡3 partes hoy!',
+         partsToShow:['clavijas','trastes','boca']
+       },
+       stars:2
+      },
+      {type:'quiz',
+       content:{title:'¿Qué aprendiste hoy?',questions:[
+         {q:'¿Qué hacen las clavijas?',a:'Afinan la guitarra',opts:['Afinan la guitarra','Hacen sonido','Sujetan el mástil','Nada']},
+         {q:'¿Cómo se llaman las barras de metal?',a:'Trastes',opts:['Cuerdas','Trastes','Clavijas','Puente']},
+         {q:'¿Para qué sirve la boca?',a:'Amplifica el sonido',opts:['Es decoración','Amplifica el sonido','Afina','Suena sola']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'Hoy conociste las clavijas, los trastes y la boca de tu guitarra.',
+    tomorrow:'Mañana: conocés las cuerdas 6, 5 y 4 y las tocás por primera vez. 🎵',
+  },
+  {
+    day:2,type:'session',
+    title:'Las cuerdas graves 〰️',
+    steps:[
+      {type:'strings',
+       content:{
+         title:'Las cuerdas 6, 5 y 4',
+         subtitle:'Estas son las más gruesas. Suenan graves, como un oso. Tocá cada una.',
+         strings:[5,4,3] // index into STRING_DATA (6=idx0, 5=idx1...)
+       },
+       stars:2
+      },
+      {type:'parts',
+       content:{
+         title:'Más partes',
+         subtitle:'Hoy sumamos la cejuela y el puente.',
+         partsToShow:['cejuela','puente','cuerdas']
+       },
+       stars:2
+      },
+      {type:'quiz',
+       content:{title:'¿Las recordás?',questions:[
+         {q:'¿Cuál es la cuerda más gruesa?',a:'Cuerda 6',opts:['Cuerda 1','Cuerda 6','Cuerda 3','Todas iguales']},
+         {q:'¿Qué hace la cejuela?',a:'Separa las cuerdas',opts:['Afina','Amplifica','Separa las cuerdas','Nada']},
+         {q:'Las cuerdas gruesas suenan…',a:'Graves',opts:['Agudas','Graves','Igual que las finas','Muy fuerte']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'Conociste las cuerdas 6, 5 y 4 — las más graves — y la cejuela y el puente.',
+    tomorrow:'Mañana: las cuerdas finas (3, 2 y 1). Las más agudas, como un pajarito. 🐦',
+  },
+  {
+    day:3,type:'session',
+    title:'Las cuerdas agudas 🐦',
+    steps:[
+      {type:'strings',
+       content:{
+         title:'Las cuerdas 3, 2 y 1',
+         subtitle:'Estas son las más finas. Suenan agudas, como un pajarito. Tocá cada una.',
+         strings:[2,1,0]
+       },
+       stars:2
+      },
+      {type:'notes',
+       content:{
+         title:'Las 7 notas musicales',
+         subtitle:'Toda la música del mundo usa solo estas 7. Tocá cada una.',
+       },
+       stars:2
+      },
+      {type:'quiz',
+       content:{title:'¡Repaso de cuerdas!',questions:[
+         {q:'¿Cómo se llama la cuerda 6?',a:'Mi grave (E)',opts:['La (A)','Sol (G)','Mi grave (E)','Si (B)']},
+         {q:'¿Cuántas cuerdas tiene la guitarra?',a:'6',opts:['4','5','6','7']},
+         {q:'La cuerda 1 suena…',a:'Más aguda que la 6',opts:['Igual que la 6','Más grave que la 6','Más aguda que la 6','No suena']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'¡Ya conocés las 6 cuerdas y las 7 notas musicales! Eso es todo el lenguaje de la música.',
+    tomorrow:'Mañana: aprendés qué es el ritmo y practicás con Sati el gato. 🐈‍⬛',
+  },
+  {
+    day:4,type:'session',
+    title:'El ritmo con Sati 🐈‍⬛',
+    steps:[
+      {type:'metro',
+       content:{
+         title:'¿Qué es el ritmo?',
+         subtitle:'El ritmo es el corazón de la música. Sati te lo muestra. Palmá con él 👏',
+         bpm:40,lockBpm:true
+       },
+       stars:3
+      },
+      {type:'quiz',
+       content:{title:'Notas en inglés',questions:[
+         {q:'¿Cómo se llama "Do" en inglés?',a:'C',opts:['A','B','C','D']},
+         {q:'¿Cómo se llama "La" en inglés?',a:'A',opts:['E','A','G','D']},
+         {q:'¿Cuántas notas musicales existen?',a:'7',opts:['5','6','7','8']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'Aprendiste qué es el ritmo y cómo se llaman las notas en inglés.',
+    tomorrow:'Mañana: repaso de todo lo que aprendiste esta semana. ¡Es el día del quiz grande! 🔍',
+  },
+  {
+    day:5,type:'session',
+    title:'¡Repaso de la semana! 🔍',
+    steps:[
+      {type:'quiz',
+       content:{title:'Quiz de la semana 1',big:true,questions:[
+         {q:'¿Qué hacen las clavijas?',a:'Afinan la guitarra',opts:['Afinan la guitarra','Sujetan cuerdas','Dan ritmo','Nada']},
+         {q:'¿Cuál es la cuerda más gruesa?',a:'Cuerda 6',opts:['Cuerda 1','Cuerda 3','Cuerda 6','Cuerda 4']},
+         {q:'¿Cómo se llama Do en inglés?',a:'C',opts:['A','B','C','D']},
+         {q:'Las barras de metal del mástil se llaman…',a:'Trastes',opts:['Cuerdas','Trastes','Cejuelas','Puentes']},
+         {q:'La boca de la guitarra sirve para…',a:'Amplificar el sonido',opts:['Afinar','Amplificar el sonido','Poner dedos','Nada']},
+         {q:'¿Cuántas notas musicales hay?',a:'7',opts:['5','6','7','9']},
+         {q:'Las cuerdas finas suenan…',a:'Agudas',opts:['Graves','Igual','Agudas','Más fuerte']},
+         {q:'¿Cómo se llama La en inglés?',a:'A',opts:['E','A','G','D']},
+       ]},
+       stars:8
+      },
+    ],
+    learned:'¡Completaste la semana 1! Conocés el instrumento, las cuerdas y las notas.',
+    tomorrow:'Mañana es día de descanso. La guitarra te espera el día 7. 😴',
+  },
+  {
+    day:6,type:'rest',
+    title:'Día de descanso 😴',
+    steps:[
+      {type:'video',
+       content:{
+         title:'Video del día',
+         emoji:'🎸',
+         videoTitle:'Las partes de la guitarra para niños',
+         desc:'Un video cortito para ver con papá o mamá. Busca en YouTube: "partes guitarra niños" y elegí el más colorido que encuentres. ¡No más de 5 minutos!',
+         url:'https://www.youtube.com/results?search_query=partes+guitarra+niños+facil+corto',
+         tip:'Los días de descanso también cuentan. Tu cerebro procesa lo que aprendiste mientras descansás. 🧠'
+       },
+       stars:1
+      },
+    ],
+    learned:'Descansaste y le diste tiempo a tu cerebro de guardar todo lo aprendido.',
+    tomorrow:'Mañana: ¡el desafío del Tío Ale! ¿Podés vencerlo? 😤',
+  },
+  {
+    day:7,type:'battle',
+    title:'¡Vencé al Tío Ale! 😤',
+    steps:[
+      {type:'ale',
+       content:{
+         title:'Desafío nivel 1',
+         taunt:'¡No sabés nada de guitarra! A ver si me ganás…',
+         questions:[
+           {q:'¿Cuántas cuerdas tiene la guitarra?',a:'6',opts:['4','5','6','7']},
+           {q:'¿Qué hacen las clavijas?',a:'Afinan',opts:['Afinan','Suenan','Nada','Adornan']},
+           {q:'¿Cuál cuerda es la más gruesa?',a:'Cuerda 6',opts:['Cuerda 1','Cuerda 6','Cuerda 3','Cuerda 2']},
+           {q:'¿Cómo se llama Do en inglés?',a:'C',opts:['A','B','C','D']},
+           {q:'Las barras de metal son los…',a:'Trastes',opts:['Trastes','Acordes','Cuerdas','Puentes']},
+         ],
+         winText:'¡NO PUEDE SER! Sabés más de guitarra que yo… 😤🏳️',
+         loseText:'¡Ja! ¡Sabía que no podías! Igual fue muy poquita diferencia… 😏'
+       },
+       stars:8
+      },
+    ],
+    learned:'¡Enfrentaste al Tío Ale en el primer desafío!',
+    tomorrow:'Mañana empieza lo más importante: ¡tus dedos aprenden a moverse! 🖐️',
+  },
+
+  // ── SEMANA 2: Los dedos ──
+  {
+    day:8,type:'session',
+    title:'Los dedos de la mano izquierda 🖐️',
+    steps:[
+      {type:'posture',
+       content:{
+         title:'La mano izquierda',
+         subtitle:'La mano que pisa las cuerdas. Cada dedo tiene su traste.',
+         steps:[
+           {icon:'☝️',title:'Dedo 1 — Índice',desc:'Traste 1. El más cerca de la cabeza de la guitarra.'},
+           {icon:'✌️',title:'Dedo 2 — Mayor',desc:'Traste 2. El más largo.'},
+           {icon:'🤞',title:'Dedo 3 — Anular',desc:'Traste 3. Le cuesta un poco al principio.'},
+           {icon:'🤙',title:'Dedo 4 — Meñique',desc:'Traste 4. El más chiquito. Hay que fortalecerlo.'},
+         ]
+       },
+       stars:2
+      },
+      {type:'gusano',
+       content:{
+         title:'El gusano — cuerda 6',
+         subtitle:'Poné un dedo por traste en la cuerda 6 solamente. Muy lento. ¡Bella te guía!',
+         strings:[0], // only cuerda 6
+         speed:2000
+       },
+       stars:3
+      },
+      {type:'quiz',
+       content:{title:'Los dedos',questions:[
+         {q:'¿Qué dedo va en el traste 1?',a:'El índice',opts:['El meñique','El mayor','El anular','El índice']},
+         {q:'¿Qué dedo va en el traste 4?',a:'El meñique',opts:['El meñique','El mayor','El anular','El índice']},
+         {q:'El ejercicio del gusano usa…',a:'4 dedos, 1 por traste',opts:['4 dedos, 1 por traste','Solo el índice','Todos juntos','2 dedos']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'Aprendiste los 4 dedos y practicaste el gusano en la cuerda más grave.',
+    tomorrow:'Mañana: el gusano en las cuerdas 6 y 5. ¡Bella corre más lejos! 🐕',
+  },
+  {
+    day:9,type:'session',
+    title:'Gusano en cuerdas 6 y 5 🐛',
+    steps:[
+      {type:'gusano',
+       content:{
+         title:'El gusano — cuerdas 6 y 5',
+         subtitle:'Hoy Bella corre por dos cuerdas. Cuando termine la 6, pasás a la 5.',
+         strings:[0,1],speed:1500
+       },
+       stars:3
+      },
+      {type:'metro',
+       content:{
+         title:'Palmear con ritmo',
+         subtitle:'Sati va a 50 BPM. Palmá una vez por cada vez que salta.',
+         bpm:50,lockBpm:true
+       },
+       stars:2
+      },
+      {type:'quiz',
+       content:{title:'Repaso',questions:[
+         {q:'¿Cómo se llama la cuerda 5?',a:'La (A)',opts:['Mi (E)','La (A)','Re (D)','Sol (G)']},
+         {q:'¿Cómo se llama la cuerda 6?',a:'Mi grave (E)',opts:['La (A)','Sol (G)','Mi grave (E)','Si (B)']},
+         {q:'En el gusano, ¿qué hace el dedo 2?',a:'Pisa el traste 2',opts:['Pisa el traste 1','Pisa el traste 2','Pisa el traste 4','No hace nada']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'Practicaste el gusano en las cuerdas 6 y 5, y palmear con Sati a ritmo.',
+    tomorrow:'Mañana sumamos las cuerdas 4 y 3. El gusano crece. 🐛',
+  },
+  {
+    day:10,type:'session',
+    title:'Gusano cuerdas 6 a 3 🐛🐛',
+    steps:[
+      {type:'gusano',
+       content:{
+         title:'El gusano — cuerdas 6 a 3',
+         subtitle:'Cuatro cuerdas hoy. ¡Ya es la mitad del mástil!',
+         strings:[0,1,2,3],speed:1400
+       },
+       stars:3
+      },
+      {type:'quiz',
+       content:{title:'Las cuerdas del medio',questions:[
+         {q:'¿Cómo se llama la cuerda 4?',a:'Re (D)',opts:['La (A)','Re (D)','Sol (G)','Si (B)']},
+         {q:'¿Cómo se llama la cuerda 3?',a:'Sol (G)',opts:['Re (D)','Sol (G)','Si (B)','Mi (E)']},
+         {q:'¿Cuántos trastes usa el gusano?',a:'4 trastes',opts:['2 trastes','3 trastes','4 trastes','6 trastes']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'El gusano ahora corre por 4 cuerdas. Tus dedos están aprendiendo.',
+    tomorrow:'Mañana: ¡el gusano completo! Las 6 cuerdas de una vez. 🎸',
+  },
+  {
+    day:11,type:'session',
+    title:'¡Gusano completo! 🐛🎉',
+    steps:[
+      {type:'gusano',
+       content:{
+         title:'El gusano — las 6 cuerdas',
+         subtitle:'¡Hoy Bella corre el recorrido completo! Tomalo con calma.',
+         strings:[0,1,2,3,4,5],speed:1300
+       },
+       stars:4
+      },
+      {type:'metro',
+       content:{
+         title:'Metrónomo a 60 BPM',
+         subtitle:'Sati va más rápido. Palmá o rasgueá las cuerdas con él.',
+         bpm:60,lockBpm:false
+       },
+       stars:2
+      },
+      {type:'quiz',
+       content:{title:'¡Las 6 cuerdas de memoria!',questions:[
+         {q:'¿Cómo se llama la cuerda 2?',a:'Si (B)',opts:['La (A)','Re (D)','Si (B)','Sol (G)']},
+         {q:'¿Cómo se llama la cuerda 1?',a:'Mi agudo (e)',opts:['La (A)','Mi agudo (e)','Si (B)','Re (D)']},
+         {q:'El orden de las cuerdas de 6 a 1 es…',a:'Mi La Re Sol Si Mi',opts:['Mi La Re Sol Si Mi','Do Re Mi Fa Sol La','La Si Do Re Mi Fa','Sol La Si Do Re Mi']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'¡El gusano completo en las 6 cuerdas! Tus dedos ya saben caminar por el mástil.',
+    tomorrow:'Mañana es descanso. El día 14 te espera el Tío Ale. 😴',
+  },
+  {
+    day:12,type:'session',
+    title:'Repaso semana 2 🖐️',
+    steps:[
+      {type:'gusano',
+       content:{
+         title:'Gusano cronometrado',
+         subtitle:'Una vez completo. Tomalo con calma. Lo importante es que cada nota suene limpia.',
+         strings:[0,1,2,3,4,5],speed:1200
+       },
+       stars:3
+      },
+      {type:'quiz',
+       content:{title:'Quiz semana 2',big:true,questions:[
+         {q:'¿Qué dedo va en el traste 3?',a:'El anular',opts:['El índice','El mayor','El anular','El meñique']},
+         {q:'¿Cómo se llama la cuerda 5?',a:'La (A)',opts:['Mi (E)','La (A)','Re (D)','Sol (G)']},
+         {q:'¿Cómo se llama la cuerda 2?',a:'Si (B)',opts:['Sol (G)','La (A)','Si (B)','Re (D)']},
+         {q:'El gusano tiene…',a:'4 dedos por cuerda',opts:['2 dedos por cuerda','3 dedos por cuerda','4 dedos por cuerda','6 dedos por cuerda']},
+         {q:'El orden de 6 a 1 es…',a:'Mi La Re Sol Si Mi',opts:['Mi La Re Sol Si Mi','La Si Mi Re Sol Fa','Do Re Mi Fa Sol La','Mi Si La Sol Re Mi']},
+       ]},
+       stars:5
+      },
+    ],
+    learned:'Completaste la semana 2. Tus dedos ya conocen el gusano de las 6 cuerdas.',
+    tomorrow:'Mañana es descanso. ¡Descansá los dedos! 😴',
+  },
+  {
+    day:13,type:'rest',
+    title:'Día de descanso 😴',
+    steps:[
+      {type:'video',
+       content:{
+         title:'Video del día',
+         emoji:'🖐️',
+         videoTitle:'Ejercicio 1-2-3-4 para niños',
+         desc:'Para ver con papá o mamá. Buscá en YouTube: "ejercicio 1234 guitarra niños lento". Elegí uno que sea muy visual y lento.',
+         url:'https://www.youtube.com/results?search_query=ejercicio+1234+guitarra+niños+lento+dedos',
+         tip:'Ver a alguien tocar te enseña cosas que las palabras no pueden. 👀'
+       },
+       stars:1
+      },
+    ],
+    learned:'Descansaste. Tu cerebro está guardando todo lo que practicaste esta semana.',
+    tomorrow:'¡Mañana el Tío Ale nivel 2! ¿Podés vencerlo con lo que sabés? 😤',
+  },
+  {
+    day:14,type:'battle',
+    title:'¡Tío Ale nivel 2! 😤',
+    steps:[
+      {type:'ale',
+       content:{
+         title:'Desafío nivel 2',
+         taunt:'¡Ahora te pregunto de los dedos! A ver si aprendiste algo…',
+         questions:[
+           {q:'¿Qué dedo pisa el traste 1?',a:'El índice',opts:['El índice','El mayor','El anular','El meñique']},
+           {q:'¿Cómo se llama la cuerda 3?',a:'Sol (G)',opts:['Re (D)','Sol (G)','Si (B)','Mi (E)']},
+           {q:'El gusano va de la cuerda 6 a la…',a:'Cuerda 1',opts:['Cuerda 6','Cuerda 3','Cuerda 1','Cuerda 4']},
+           {q:'¿Cuántos dedos usa el gusano?',a:'4',opts:['2','3','4','6']},
+           {q:'La cuerda 1 se llama…',a:'Mi agudo (e)',opts:['Mi agudo (e)','La (A)','Si (B)','Sol (G)']},
+         ],
+         winText:'¡Estudiaste! Está bien, ganaste esta vez… 😤',
+         loseText:'¡Eso faltaba practicar! ¡Yo siempre gano! 😏'
+       },
+       stars:8
+      },
+    ],
+    learned:'¡Segundo desafío del Tío Ale completado!',
+    tomorrow:'Mañana empieza la parte más emocionante: ¡tu primera canción! 🎵',
+  },
+
+  // ── SEMANA 3: Primera melodía ──
+  {
+    day:15,type:'session',
+    title:'Tu primera melodía 🌟',
+    steps:[
+      {type:'melody',
+       content:{
+         title:'Estrellita — primeras 4 notas',
+         subtitle:'Solo en la cuerda 1. Tocá cada nota y escuchá cómo empieza la canción.',
+         notes:[
+           {note:'Mi',string:'Cuerda 1 al aire',finger:'No pisés ningún traste',traste:0},
+           {note:'Mi',string:'Cuerda 1 al aire',finger:'Otra vez',traste:0},
+           {note:'Si',string:'Cuerda 2 al aire',finger:'Sin pisar',traste:0},
+           {note:'Si',string:'Cuerda 2 al aire',finger:'Otra vez',traste:0},
+         ],
+         cancion:'Estrellita dónde estás'
+       },
+       stars:3
+      },
+      {type:'metro',
+       content:{
+         title:'Con ritmo',
+         subtitle:'Ahora tocá esas notas siguiendo a Sati. Una nota por beat.',
+         bpm:40,lockBpm:true
+       },
+       stars:2
+      },
+      {type:'quiz',
+       content:{title:'Las notas al aire',questions:[
+         {q:'¿Cómo se llama la cuerda 1 al aire?',a:'Mi agudo (e)',opts:['La (A)','Mi agudo (e)','Si (B)','Re (D)']},
+         {q:'¿Cómo se llama la cuerda 2 al aire?',a:'Si (B)',opts:['Sol (G)','La (A)','Si (B)','Re (D)']},
+         {q:'"Estrellita" empieza con cuerdas…',a:'Al aire (sin pisar)',opts:['Pisadas fuerte','Al aire (sin pisar)','Con cejuela','Solo cuerdas graves']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'Tocaste las primeras 4 notas de Estrellita. ¡Es una canción real!',
+    tomorrow:'Mañana: las notas 5 a 8 de Estrellita. Ya casi la tenés completa. 🌟',
+  },
+  {
+    day:16,type:'session',
+    title:'Estrellita — segunda parte 🌟🌟',
+    steps:[
+      {type:'melody',
+       content:{
+         title:'Estrellita — notas 5 a 8',
+         subtitle:'Estas notas usan el traste 1 de la cuerda 2. ¡El índice!',
+         notes:[
+           {note:'La',string:'Cuerda 3 al aire',finger:'Sin pisar',traste:0},
+           {note:'La',string:'Cuerda 3 al aire',finger:'Otra vez',traste:0},
+           {note:'Sol',string:'Cuerda 3 al aire',finger:'Seguimos',traste:0},
+           {note:'Fa#',string:'Cuerda 1, traste 2',finger:'Dedo 2 (mayor)',traste:2},
+         ],
+         cancion:'Estrellita dónde estás'
+       },
+       stars:3
+      },
+      {type:'metro',
+       content:{
+         title:'Ritmo más fluido',
+         subtitle:'Sati va a 45 BPM. Tocá las 8 notas de memoria, una por beat.',
+         bpm:45,lockBpm:true
+       },
+       stars:2
+      },
+      {type:'quiz',
+       content:{title:'Repaso Estrellita',questions:[
+         {q:'¿Qué dedo pisa el traste 2?',a:'El mayor',opts:['El índice','El mayor','El anular','El meñique']},
+         {q:'La cuerda 3 al aire se llama…',a:'Sol (G)',opts:['Re (D)','Sol (G)','Si (B)','Mi (E)']},
+         {q:'Tocar "al aire" significa…',a:'Sin pisar ningún traste',opts:['Muy suave','Sin pisar ningún traste','Con mucha fuerza','Con la uña']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'Aprendiste la segunda parte de Estrellita. Los dedos ya empiezan a memorizarla.',
+    tomorrow:'Mañana: Estrellita completa de una vez. ¡La primera canción! 🎸',
+  },
+  {
+    day:17,type:'session',
+    title:'¡Estrellita completa! 🌟🎸',
+    steps:[
+      {type:'melody',
+       content:{
+         title:'Estrellita — completa',
+         subtitle:'Todas las notas juntas. Lento está bien. Lo que importa es que no pares.',
+         notes:[
+           {note:'Mi',string:'Cuerda 1 al aire',finger:'',traste:0},
+           {note:'Mi',string:'Cuerda 1 al aire',finger:'',traste:0},
+           {note:'Si',string:'Cuerda 2 al aire',finger:'',traste:0},
+           {note:'Si',string:'Cuerda 2 al aire',finger:'',traste:0},
+           {note:'La',string:'Cuerda 3 al aire',finger:'',traste:0},
+           {note:'La',string:'Cuerda 3 al aire',finger:'',traste:0},
+           {note:'Sol',string:'Cuerda 3 al aire',finger:'',traste:0},
+           {note:'—',string:'Pausa',finger:'Respirá',traste:-1},
+         ],
+         cancion:'Estrellita dónde estás 🌟'
+       },
+       stars:4
+      },
+      {type:'quiz',
+       content:{title:'¡Lo lograste!',questions:[
+         {q:'¿Cuántas notas tiene Estrellita (versión de hoy)?',a:'8 notas',opts:['4 notas','6 notas','8 notas','12 notas']},
+         {q:'¿Qué significa "pausa" en música?',a:'No tocar por un momento',opts:['Tocar más fuerte','No tocar por un momento','Tocar más rápido','Cambiar de cuerda']},
+         {q:'Tocar lento es…',a:'Perfecto para aprender',opts:['Malo','Aburrido','Perfecto para aprender','Solo para principiantes']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'¡Tocaste Estrellita completa! Tu primera canción en guitarra. Eso es enorme.',
+    tomorrow:'Mañana es descanso. Merecido después de tu primera canción. 🌟',
+  },
+  {
+    day:18,type:'rest',
+    title:'¡Bien ganado, Feli! 😴',
+    steps:[
+      {type:'video',
+       content:{
+         title:'Video del día',
+         emoji:'🌟',
+         videoTitle:'Canciones simples para guitarra — niños',
+         desc:'Para ver con papá o mamá. Buscá en YouTube: "Estrellita guitarra niños fácil". Mirá cómo lo toca otra persona.',
+         url:'https://www.youtube.com/results?search_query=estrellita+guitarra+niños+facil+paso+a+paso',
+         tip:'Escuchar la canción que aprendiste tocada por otro te ayuda a afinar el oído. 👂'
+       },
+       stars:1
+      },
+    ],
+    learned:'Descansaste después de aprender tu primera canción. ¡Te lo merecés!',
+    tomorrow:'¡Tío Ale nivel 3! ¿Sabés todo lo de Estrellita? 😤',
+  },
+  {
+    day:19,type:'battle',
+    title:'¡Tío Ale nivel 3! 😤🎵',
+    steps:[
+      {type:'ale',
+       content:{
+         title:'Desafío nivel 3 — ¡Melodías!',
+         taunt:'¿Una canción? ¡Eso no es nada! Veamos si te acordás de todo…',
+         questions:[
+           {q:'Estrellita empieza en la cuerda…',a:'Cuerda 1 al aire',opts:['Cuerda 6','Cuerda 3','Cuerda 1 al aire','Cuerda 4']},
+           {q:'¿Qué significa tocar "al aire"?',a:'Sin pisar',opts:['Sin pisar','Muy suave','Rápido','Con fuerza']},
+           {q:'¿Cuántas notas hay en Estrellita básica?',a:'8',opts:['4','6','8','10']},
+           {q:'¿Qué dedo pisa el traste 1?',a:'Índice',opts:['Índice','Mayor','Anular','Meñique']},
+           {q:'La cuerda 2 al aire se llama…',a:'Si (B)',opts:['La (A)','Si (B)','Sol (G)','Re (D)']},
+         ],
+         winText:'¡¿Cómo sabés todo eso?! Bueno, está bien, ganaste… 😤🏳️',
+         loseText:'¡Estudien más, chicos! Pero casi llegás. 😏'
+       },
+       stars:8
+      },
+    ],
+    learned:'¡Tercer desafío completado! El Tío Ale cada vez le cuesta más ganarte.',
+    tomorrow:'Mañana empezamos con los acordes. ¡El acorde Em es el más fácil! 🎸',
+  },
+  {
+    day:20,type:'session',
+    title:'Tu primer acorde: Em 🎸',
+    steps:[
+      {type:'chord',
+       content:{
+         title:'Acorde Em — Mi menor',
+         subtitle:'Solo 2 dedos. Es el acorde más fácil de la guitarra. ¡Feli lo puede!',
+         chord:'Em',
+         fingers:[
+           {string:5,fret:2,finger:2,label:'Mayor'},
+           {string:4,fret:2,finger:3,label:'Anular'},
+         ],
+         openStrings:[6,3,2,1],
+         tip:'Pisá con la punta del dedo, bien curvado. Que no toque la cuerda de al lado.'
+       },
+       stars:3
+      },
+      {type:'metro',
+       content:{
+         title:'Rasgueo con Em',
+         subtitle:'Poné el acorde Em y rasgueá hacia abajo con Sati. Una vez por beat.',
+         bpm:40,lockBpm:true
+       },
+       stars:3
+      },
+      {type:'quiz',
+       content:{title:'El acorde Em',questions:[
+         {q:'¿Cuántos dedos usa el acorde Em?',a:'2 dedos',opts:['1 dedo','2 dedos','3 dedos','4 dedos']},
+         {q:'Un acorde es…',a:'Varias notas juntas',opts:['Una sola nota','Varias notas juntas','Un ejercicio','Una canción']},
+         {q:'Em significa…',a:'Mi menor',opts:['Mi mayor','Mi menor','La menor','Sol mayor']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'Aprendiste el acorde Em y lo tocaste con ritmo. ¡Tu primer acorde real!',
+    tomorrow:'Mañana: el acorde Am — casi igual que Em, pero una cuerda más arriba. 🎸',
+  },
+  {
+    day:21,type:'session',
+    title:'Segundo acorde: Am 🎸🎸',
+    steps:[
+      {type:'chord',
+       content:{
+         title:'Acorde Am — La menor',
+         subtitle:'3 dedos esta vez. Muy parecido al Em pero en diferentes cuerdas.',
+         chord:'Am',
+         fingers:[
+           {string:4,fret:2,finger:2,label:'Mayor'},
+           {string:3,fret:2,finger:3,label:'Anular'},
+           {string:2,fret:1,finger:1,label:'Índice'},
+         ],
+         openStrings:[5,1],
+         tip:'El índice en el traste 1 de la cuerda 2 es el más difícil. ¡Tomátelo con calma!'
+       },
+       stars:3
+      },
+      {type:'quiz',
+       content:{title:'El acorde Am',questions:[
+         {q:'¿Cuántos dedos usa Am?',a:'3 dedos',opts:['1 dedo','2 dedos','3 dedos','4 dedos']},
+         {q:'Am significa…',a:'La menor',opts:['La mayor','La menor','Mi menor','Sol menor']},
+         {q:'Em y Am tienen algo en común: los dedos 2 y 3 en…',a:'El traste 2',opts:['El traste 1','El traste 2','El traste 3','El traste 4']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'Aprendiste el acorde Am. Ahora tenés dos acordes en tu repertorio.',
+    tomorrow:'Mañana practicás cambiar de Em a Am. Eso es tocar música de verdad. 🎵',
+  },
+  {
+    day:22,type:'rest',
+    title:'Día de descanso 😴',
+    steps:[
+      {type:'video',
+       content:{
+         title:'Video del día',
+         emoji:'🎸',
+         videoTitle:'Acordes Em y Am para principiantes',
+         desc:'Para ver con papá o mamá. Buscá en YouTube: "acordes Em Am guitarra niños fácil".',
+         url:'https://www.youtube.com/results?search_query=acorde+Em+Am+guitarra+niños+facil+principiante',
+         tip:'Ver los dedos de otra persona tocando Em y Am te ayuda a verificar que los tuyos estén bien. 👀'
+       },
+       stars:1
+      },
+    ],
+    learned:'Descansaste. Los acordes se afianzan cuando los dedos descansan.',
+    tomorrow:'¡Tío Ale nivel 4! Ahora pregunta de acordes. 😤',
+  },
+  {
+    day:23,type:'battle',
+    title:'¡Tío Ale nivel 4! 😤🎸',
+    steps:[
+      {type:'ale',
+       content:{
+         title:'Desafío nivel 4 — ¡Acordes!',
+         taunt:'¿Acordes? ¡Eso sí que es difícil! ¡No te vas a acordar de nada!',
+         questions:[
+           {q:'¿Cuántos dedos usa Em?',a:'2',opts:['1','2','3','4']},
+           {q:'¿Cuántos dedos usa Am?',a:'3',opts:['1','2','3','4']},
+           {q:'Em significa…',a:'Mi menor',opts:['Mi menor','La menor','Sol mayor','Re mayor']},
+           {q:'En Am, el índice va en…',a:'Cuerda 2, traste 1',opts:['Cuerda 2, traste 1','Cuerda 5, traste 2','Cuerda 1, traste 3','Cuerda 6, traste 2']},
+           {q:'Un acorde son…',a:'Varias notas juntas',opts:['Una nota sola','Varias notas juntas','Un ejercicio difícil','Solo para adultos']},
+         ],
+         winText:'¡Eso no puede ser! ¡Acordes también sabés! Me rindo por hoy… 😤🏳️',
+         loseText:'¡Los acordes cuestan! ¡Pero casi llegaste! ¡Seguí practicando! 💪'
+       },
+       stars:8
+      },
+    ],
+    learned:'¡Cuarto desafío completado! Ya sabés de acordes, cuerdas, dedos y melodías.',
+    tomorrow:'Mañana: cambio de Em a Am. El secreto de la música está en los cambios. 🎵',
+  },
+  {
+    day:24,type:'session',
+    title:'Cambio Em → Am 🔄',
+    steps:[
+      {type:'posture',
+       content:{
+         title:'Cómo cambiar de acorde',
+         subtitle:'El secreto es preparar los dedos antes de llegar. Hacé estos pasos.',
+         steps:[
+           {icon:'🎸',title:'Poné el acorde Em',desc:'Dedo 2 y 3 en el traste 2, cuerdas 5 y 4.'},
+           {icon:'👀',title:'Mirá dónde va Am',desc:'El índice va al traste 1, cuerda 2. El 2 y 3 suben una cuerda.'},
+           {icon:'🔄',title:'Cambiá lentamente',desc:'Mueve todos los dedos juntos al mismo tiempo.'},
+           {icon:'✅',title:'Rasgueá Am y verificá',desc:'¿Suenan todas las cuerdas? Si no, ajustá los dedos.'},
+         ]
+       },
+       stars:2
+      },
+      {type:'metro',
+       content:{
+         title:'Em → Am con metrónomo',
+         subtitle:'4 beats Em, 4 beats Am. Sati va despacio. Tomátelo sin apuro.',
+         bpm:40,lockBpm:true
+       },
+       stars:3
+      },
+      {type:'quiz',
+       content:{title:'El cambio',questions:[
+         {q:'¿Cuándo preparar los dedos para cambiar de acorde?',a:'Antes de que llegue el momento',opts:['Después de rasguear','Antes de que llegue el momento','Cuando algo suena mal','Al final de la canción']},
+         {q:'Mover todos los dedos juntos al cambiar es…',a:'Lo correcto',opts:['Un error','Lo correcto','Solo para expertos','Opcional']},
+         {q:'Si un acorde suena mal, hay que…',a:'Ajustar los dedos sin parar',opts:['Empezar de cero','Ajustar los dedos sin parar','Tocar más fuerte','Cambiar de canción']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'Aprendiste el secreto del cambio de acordes: preparar los dedos antes.',
+    tomorrow:'Mañana: Em y Am con más velocidad. ¡Ya casi sonás como una guitarrista! 🎸',
+  },
+  {
+    day:25,type:'session',
+    title:'Em y Am más fluido 🎵',
+    steps:[
+      {type:'metro',
+       content:{
+         title:'Cambio Em ↔ Am a 50 BPM',
+         subtitle:'2 beats Em, 2 beats Am. Más rápido que ayer. Sati te marca el ritmo.',
+         bpm:50,lockBpm:true
+       },
+       stars:3
+      },
+      {type:'gusano',
+       content:{
+         title:'Calentamiento de dedos',
+         subtitle:'El gusano de siempre para calentar los dedos antes de los acordes.',
+         strings:[0,1,2],speed:1000
+       },
+       stars:2
+      },
+      {type:'quiz',
+       content:{title:'Repaso general',questions:[
+         {q:'¿Cuántas cuerdas tiene la guitarra?',a:'6',opts:['4','5','6','7']},
+         {q:'El gusano usa…',a:'4 dedos, 1 por traste',opts:['2 dedos','4 dedos, 1 por traste','Los 5 dedos','Solo el índice']},
+         {q:'¿Cuál es el acorde más fácil?',a:'Em',opts:['Am','Em','C','G']},
+       ]},
+       stars:3
+      },
+    ],
+    learned:'Em y Am a 50 BPM. Los cambios empiezan a salir más naturales.',
+    tomorrow:'Mañana es descanso. El día siguiente es el gran repaso final. 😴',
+  },
+  {
+    day:26,type:'rest',
+    title:'Día de descanso 😴',
+    steps:[
+      {type:'video',
+       content:{
+         title:'Video del día',
+         emoji:'🎵',
+         videoTitle:'Canciones con Em y Am para niños',
+         desc:'Para ver con papá o mamá. Buscá en YouTube: "canciones guitarrra Em Am niños fácil".',
+         url:'https://www.youtube.com/results?search_query=cancion+guitarra+Em+Am+niños+facil+dos+acordes',
+         tip:'Con Em y Am ya podés tocar varias canciones conocidas. ¡Ya sos guitarrista! 🎸'
+       },
+       stars:1
+      },
+    ],
+    learned:'Descansaste. Mañana viene el repaso final antes de la gran graduación.',
+    tomorrow:'Mañana: repaso general + Tío Ale nivel 5, el final. 😤',
+  },
+  {
+    day:27,type:'battle',
+    title:'¡Tío Ale — Final! 😤👑',
+    steps:[
+      {type:'ale',
+       content:{
+         title:'¡Desafío FINAL!',
+         taunt:'¡Bien! Llegaste hasta acá. Pero este es el desafío más difícil de todos. ¿Estás lista?',
+         questions:[
+           {q:'¿Qué es Em?',a:'Mi menor — 2 dedos',opts:['Mi menor — 2 dedos','La menor — 3 dedos','Sol mayor — 3 dedos','Re menor — 2 dedos']},
+           {q:'¿Cuántas notas tiene Estrellita básica?',a:'8',opts:['4','6','8','10']},
+           {q:'El gusano va de la cuerda…',a:'6 a la 1',opts:['1 a la 6','6 a la 1','3 a la 6','2 a la 5']},
+           {q:'Las cuerdas de la guitarra de la 6 a la 1 son…',a:'Mi La Re Sol Si Mi',opts:['Mi La Re Sol Si Mi','Do Re Mi Fa Sol La','La Si Do Re Mi Fa','Sol La Si Do Re Mi']},
+           {q:'¿Cuántas notas musicales existen?',a:'7',opts:['5','6','7','12']},
+         ],
+         winText:'¡¡¡INCREÍBLE!!! ¡¡¡GANASTE EL DESAFÍO FINAL!!! Está bien, admito que aprendiste todo. 😤🏳️👏',
+         loseText:'¡Casi! Fuiste muy valiente. ¡Ya casi me ganás! 💪'
+       },
+       stars:10
+      },
+    ],
+    learned:'¡Completaste el desafío final del Tío Ale! Eso significa que aprendiste todo el curso.',
+    tomorrow:'Mañana: ¡Sesión de repaso! Después viene la gran graduación. 🎓',
+  },
+  {
+    day:28,type:'session',
+    title:'Gran repaso 🎓',
+    steps:[
+      {type:'gusano',
+       content:{
+         title:'Gusano completo — veloz',
+         subtitle:'Un último gusano. Ya te sale fluido.',
+         strings:[0,1,2,3,4,5],speed:1000
+       },
+       stars:3
+      },
+      {type:'metro',
+       content:{
+         title:'Em y Am a 60 BPM',
+         subtitle:'El ritmo más rápido que hiciste hasta ahora. ¡Confiá en tus dedos!',
+         bpm:60,lockBpm:true
+       },
+       stars:3
+      },
+      {type:'quiz',
+       content:{title:'Quiz del repaso final',big:true,questions:[
+         {q:'¿Cuántas cuerdas tiene la guitarra?',a:'6',opts:['4','5','6','7']},
+         {q:'¿Cómo se llama la cuerda 6?',a:'Mi grave (E)',opts:['La (A)','Mi grave (E)','Re (D)','Sol (G)']},
+         {q:'¿Qué dedo va en el traste 1?',a:'El índice',opts:['El índice','El mayor','El anular','El meñique']},
+         {q:'Em usa cuántos dedos…',a:'2',opts:['1','2','3','4']},
+         {q:'Estrellita empieza con…',a:'Cuerda 1 al aire',opts:['Cuerda 6 pisada','Cuerda 1 al aire','Cuerda 3 pisada','Cuerda 4 al aire']},
+         {q:'El ritmo lo marca…',a:'El metrónomo',opts:['El metrónomo','El volumen','El color','El tamaño']},
+       ]},
+       stars:6
+      },
+    ],
+    learned:'Repasaste todo el curso. Mañana es el gran día: ¡tu graduación! 🎓',
+    tomorrow:'Mañana: ¡GRADUACIÓN! La sesión más especial de todas. 🎓✨',
+  },
+  {
+    day:29,type:'rest',
+    title:'Descanso antes de la graduación 😴',
+    steps:[
+      {type:'video',
+       content:{
+         title:'Video de inspiración',
+         emoji:'🎓',
+         videoTitle:'Niños tocando guitarra — inspiración',
+         desc:'Para ver con papá o mamá. Buscá en YouTube: "niños tocando guitarra increíble". ¡Así vas a tocar vos muy pronto!',
+         url:'https://www.youtube.com/results?search_query=niños+tocando+guitarra+increible+inspiracion',
+         tip:'Todo guitarrista empezó donde empezaste vos. La diferencia es que siguieron practicando. 🎸'
+       },
+       stars:1
+      },
+    ],
+    learned:'Último descanso antes de la gran graduación. ¡Ya casi llegaste!',
+    tomorrow:'¡MAÑANA ES TU GRADUACIÓN! 🎓🎉',
+  },
+  {
+    day:30,type:'graduation',
+    title:'🎓 ¡Graduación, Feli!',
+    steps:[
+      {type:'melody',
+       content:{
+         title:'Estrellita — última vez',
+         subtitle:'Tocá Estrellita una vez más. Ya no es la primera vez. Ahora sos guitarrista.',
+         notes:[
+           {note:'Mi',string:'Cuerda 1 al aire',finger:'',traste:0},
+           {note:'Mi',string:'Cuerda 1 al aire',finger:'',traste:0},
+           {note:'Si',string:'Cuerda 2 al aire',finger:'',traste:0},
+           {note:'Si',string:'Cuerda 2 al aire',finger:'',traste:0},
+           {note:'La',string:'Cuerda 3 al aire',finger:'',traste:0},
+           {note:'La',string:'Cuerda 3 al aire',finger:'',traste:0},
+           {note:'Sol',string:'Cuerda 3 al aire',finger:'',traste:0},
+           {note:'—',string:'Fin 🌟',finger:'¡Lo lograste!',traste:-1},
+         ],
+         cancion:'¡Tu primera canción 🎸!'
+       },
+       stars:5
+      },
+      {type:'quiz',
+       content:{title:'Quiz de graduación',questions:[
+         {q:'¿Cuántas cuerdas tiene la guitarra?',a:'6',opts:['4','5','6','7']},
+         {q:'¿Qué aprendiste en este curso?',a:'Todo eso y más',opts:['Nada','Un poco','Todo eso y más','Solo los dedos']},
+         {q:'Una guitarrista de verdad sigue…',a:'Practicando siempre',opts:['Solo cuando quiere','Practicando siempre','Solo los sábados','Nunca más']},
+       ]},
+       stars:5
+      },
+    ],
+    learned:'Completaste el curso completo de 30 días. Sos una guitarrista de verdad.',
+    tomorrow:'Seguí practicando. La guitarra es para siempre. 🎸❤️',
+  },
+];
+
+// ════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════
+const STRING_DATA=[
+  {num:6,name:'Mi grave',eng:'E',color:'#FF6B9D',thick:7,desc:'La más gruesa. Suena grave, como un oso.',freq:82},
+  {num:5,name:'La',eng:'A',color:'#FF8C42',thick:5.5,desc:'La segunda. Empieza muchos acordes.',freq:110},
+  {num:4,name:'Re',eng:'D',color:'#FFD93D',thick:4.5,desc:'En el medio. Nota Re.',freq:147},
+  {num:3,name:'Sol',eng:'G',color:'#4ECDC4',thick:3.5,desc:'En el medio. Nota Sol.',freq:196},
+  {num:2,name:'Si',eng:'B',color:'#A855F7',thick:2,desc:'Segunda más fina. Nota Si.',freq:247},
+  {num:1,name:'Mi agudo',eng:'e',color:'#4ADE80',thick:1.5,desc:'La más fina. La misma nota que la 6 pero mucho más aguda.',freq:330},
+];
+
+const PARTS_DATA={
+  clavijas:{name:'Clavijas',desc:'Girándolas afinás la guitarra. Más tensión = sonido más agudo.'},
+  trastes:{name:'Trastes',desc:'Las barras de metal en el mástil. Cada traste es una nota diferente.'},
+  boca:{name:'Boca (Sound hole)',desc:'El agujero redondo. El sonido entra ahí y se amplifica, como una bocina.'},
+  cejuela:{name:'Cejuela (Nut)',desc:'La pieza blanca entre el mástil y las clavijas. Separa las cuerdas.'},
+  puente:{name:'Puente (Bridge)',desc:'Donde se atan las cuerdas al cuerpo. Transmite la vibración a la madera.'},
+  cuerdas:{name:'Cuerdas (Strings)',desc:'Los 6 hilos. Las gruesas suenan grave, las finas suenan agudo.'},
+};
+
+const RANKS=[
+  {icon:'🐭',name:'Judy Hopps Rookie',t:0},
+  {icon:'🦊',name:'Nick Wilde Aprendiz',t:50},
+  {icon:'🐻',name:'Jefe Bogo',t:150},
+  {icon:'🦥',name:'Flash el Perezoso',t:300},
+  {icon:'🦌',name:'Gazelle en Concierto',t:500},
+];
+
+// ════════════════════════════════════════════
+// AUDIO
+// ════════════════════════════════════════════
+let audioCtx=null;
+function getAC(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function playTone(freq,dur=.4,type='sine',vol=.25){
+  try{
+    const ac=getAC(),o=ac.createOscillator(),g=ac.createGain();
+    o.connect(g);g.connect(ac.destination);
+    o.frequency.value=freq;o.type=type;
+    g.gain.setValueAtTime(vol,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+dur);
+    o.start();o.stop(ac.currentTime+dur);
+  }catch(e){}
+}
+function playString(freq){
+  try{
+    const ac=getAC();
+    [{f:freq,t:'sawtooth',v:.25,d:1.2},{f:freq*2,t:'sine',v:.08,d:.8}].forEach(({f,t,v,d})=>{
+      const o=ac.createOscillator(),g=ac.createGain();
+      o.connect(g);g.connect(ac.destination);
+      o.frequency.value=f;o.type=t;
+      g.gain.setValueAtTime(v,ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);
+      o.start();o.stop(ac.currentTime+d);
+    });
+  }catch(e){}
+}
+function playClick(accent=false){playTone(accent?1200:800,.05,'square',.3);}
+function playSuccess(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,.3,'sine',.25),i*120));}
+function playWrong(){playTone(180,.35,'sawtooth',.2);}
+
+// ════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════
+function qs(s){return document.querySelector(s);}
+function getRank(){let r=RANKS[0];RANKS.forEach(rk=>{if(S.stars>=rk.t)r=rk;});return r;}
+
+let toastTO;
+function showToast(msg){
+  const t=qs('#toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTO);toastTO=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+function updateHeader(){
+  const day=DAYS[S.currentDay-1];
+  qs('#hdr-day').textContent=`Día ${S.currentDay}${day?.type==='rest'?' — Descanso':day?.type==='battle'?' — Desafío':day?.type==='graduation'?' — 🎓':''}`;
+  const r=getRank();
+  qs('#hdr-stars').textContent=S.stars;
+  qs('#hdr-rank').innerHTML=`${r.icon} <span>${r.name}</span>`;
+}
+
+function buildStepBar(totalSteps){
+  const bar=qs('#step-bar');
+  bar.innerHTML='';
+  for(let i=0;i<totalSteps;i++){
+    const pip=document.createElement('div');
+    pip.className='step-pip'+(i<S.currentStep?' done':i===S.currentStep?' active':'');
+    bar.appendChild(pip);
+  }
+}
+
+// ════════════════════════════════════════════
+// CONFETTI
+// ════════════════════════════════════════════
+const cnv=qs('#cnv');
+const ctx=cnv.getContext('2d');
+let parts2=[];
+function resizeCnv(){cnv.width=innerWidth;cnv.height=innerHeight;}
+window.addEventListener('resize',resizeCnv);resizeCnv();
+function confetti(big=false){
+  const cols=['#FF6B9D','#FFD93D','#4ECDC4','#A855F7','#FF8C42','#4ADE80'];
+  const count=big?120:60;
+  for(let i=0;i<count;i++){
+    parts2.push({x:Math.random()*cnv.width,y:-10,r:Math.random()*6+3,d:Math.random()*4+2,c:cols[Math.floor(Math.random()*cols.length)],t:0,ts:Math.random()*.1+.04});
+  }
+  if(!rafId)animCnv();
+}
+let rafId=null;
+function animCnv(){
+  ctx.clearRect(0,0,cnv.width,cnv.height);
+  parts2.forEach(p=>{p.y+=p.d;p.t+=p.ts;ctx.beginPath();ctx.lineWidth=p.r/2;ctx.strokeStyle=p.c;ctx.moveTo(p.x+Math.sin(p.t)*15+p.r/2,p.y);ctx.lineTo(p.x+Math.sin(p.t)*15,p.y+p.r*1.5);ctx.stroke();});
+  parts2=parts2.filter(p=>p.y<cnv.height+20);
+  if(parts2.length>0){rafId=requestAnimationFrame(animCnv);}else{rafId=null;ctx.clearRect(0,0,cnv.width,cnv.height);}
+}
+
+// ════════════════════════════════════════════
+// MAIN BUTTON
+// ════════════════════════════════════════════
+function handleMainBtn(){
+  if(stepHandler) stepHandler();
+}
+let stepHandler=null;
+function setMainBtn(text,cls='',handler=null,disabled=false){
+  const btn=qs('#main-btn');
+  btn.textContent=text;
+  btn.className='main-btn'+(cls?' '+cls:'');
+  btn.disabled=disabled;
+  stepHandler=handler;
+}
+
+// ════════════════════════════════════════════
+// SESSION ENGINE
+// ════════════════════════════════════════════
+function startSession(){
+  const dayData=DAYS[S.currentDay-1];
+  if(!dayData){showGraduation();return;}
+  S.sessionDone=false;
+  S.currentStep=0;
+  updateHeader();
+  const steps=getStepsForDay(dayData);
+  buildStepBar(steps.length+1);
+  renderStep();
+}
+
+function renderStep(){
+  const dayData=DAYS[S.currentDay-1];
+  if(!dayData)return;
+  const steps=getStepsForDay(dayData);
+  const step=steps[S.currentStep];
+  updateHeader();
+  buildStepBar(steps.length+1);
+
+  if(!step){
+    // All steps done — show completion
+    renderComplete(dayData);
+    return;
+  }
+
+  const content=qs('#zone-content');
+  content.innerHTML='';
+
+  switch(step.type){
+    case 'posture': renderPosture(step,dayData); break;
+    case 'parts': renderParts(step,dayData); break;
+    case 'strings': renderStrings(step,dayData); break;
+    case 'notes': renderNotes(step,dayData); break;
+    case 'gusano': renderGusano(step,dayData); break;
+    case 'metro': renderMetro(step,dayData); break;
+    case 'quiz': case 'ale': renderQuiz(step,dayData); break;
+    case 'video': renderVideo(step,dayData); break;
+    case 'melody': renderMelody(step,dayData); break;
+    case 'chord': renderChord(step,dayData); break;
+    case 'challenge': renderChallenge(step,dayData); break;
+    case 'record': renderRecord(step,dayData); break;
+  }
+}
+
+function advanceStep(){
+  const dayData=DAYS[S.currentDay-1];
+  const steps=getStepsForDay(dayData);
+  const step=steps[S.currentStep];
+  if(step) addStars(step.stars||0);
+  S.currentStep++;
+  save();
+  renderStep();
+}
+
+// ════════════════════════════════════════════
+// RENDER: POSTURE
+// ════════════════════════════════════════════
+function renderPosture(step,dayData){
+  const c=step.content;
+  const done=new Set();
+  const html=`
+    <div class="content-block">
+      <div class="block-title">${c.title}</div>
+      <div class="block-subtitle">${c.subtitle}</div>
+      <div class="posture-steps" id="posture-steps">
+        ${c.steps.map((s,i)=>`
+          <div class="posture-step" id="ps-${i}" onclick="markPosture(${i})">
+            <div class="ps-icon">${s.icon}</div>
+            <div class="ps-info">
+              <div class="ps-title">${s.title}</div>
+              <div class="ps-desc">${s.desc}</div>
+            </div>
+            <div class="ps-check" id="psc-${i}">○</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  qs('#zone-content').innerHTML=html;
+  setMainBtn('Siguiente →','',null,true);
+
+  window._postureSet=new Set();
+  window._postureTotal=c.steps.length;
+  window.markPosture=function(i){
+    window._postureSet.add(i);
+    qs(`#ps-${i}`).classList.add('done');
+    qs(`#psc-${i}`).textContent='✅';
+    playTone(523+i*50,.2);
+    if(window._postureSet.size>=window._postureTotal){
+      setMainBtn('¡Listo! →','green',advanceStep);
+      showToast('⭐ ¡Perfecto!');
+    }
+  };
+}
+
+// ════════════════════════════════════════════
+// RENDER: PARTS
+// ════════════════════════════════════════════
+function renderParts(step,dayData){
+  const c=step.content;
+  const partsToShow=c.partsToShow;
+  const partsVisited=new Set();
+
+  qs('#zone-content').innerHTML=`
+    <div class="content-block guitar-wrap">
+      <div class="block-title">${c.title}</div>
+      <div class="block-subtitle">${c.subtitle}</div>
+      <div class="guitar-svg-container">
+        ${buildGuitarSVG(partsToShow)}
+      </div>
+      <div class="part-buttons" id="part-btns">
+        ${partsToShow.map(p=>`<button class="part-btn" id="pbtn-${p}" onclick="selectPartBlock('${p}')">${PARTS_DATA[p].name}</button>`).join('')}
+      </div>
+      <div class="parts-progress" id="parts-prog">
+        ${partsToShow.map((_,i)=>`<div class="pp-dot" id="ppd-${i}"></div>`).join('')}
+      </div>
+      <div class="part-desc" id="pdesc"></div>
+    </div>`;
+  setMainBtn('Tocá cada parte primero','',null,true);
+
+  window._partsVisited=new Set();
+  window._partsTotal=partsToShow.length;
+  window.selectPartBlock=function(id){
+    document.querySelectorAll('.part-btn').forEach(b=>b.classList.remove('sel'));
+    qs(`#pbtn-${id}`).classList.add('sel');
+    const p=PARTS_DATA[id];
+    const desc=qs('#pdesc');
+    desc.innerHTML=`<strong>${p.name}</strong> — ${p.desc}`;
+    desc.classList.add('show');
+    // highlight SVG dot
+    document.querySelectorAll('.svgdot').forEach(d=>{d.style.fill='#FF6B9D';d.style.opacity='.85';});
+    const dot=qs(`#svgdot-${id}`);
+    if(dot){dot.style.fill='#FFD93D';dot.style.filter='drop-shadow(0 0 6px #FFD93D)';}
+    playTone({clavijas:523,trastes:440,cejuela:392,boca:330,puente:294,cuerdas:262}[id]||400,.4);
+    if(!window._partsVisited.has(id)){
+      window._partsVisited.add(id);
+      const idx=partsToShow.indexOf(id);
+      if(idx>=0) qs(`#ppd-${idx}`).classList.add('done');
+      if(window._partsVisited.size>=window._partsTotal){
+        setMainBtn('¡Listo! →','green',advanceStep);
+        showToast('⭐ ¡Conocés todas las partes!');
+      }
+    }
+  };
+}
+
+function buildGuitarSVG(highlight=[]){
+  return `<svg viewBox="0 0 260 420" width="100%" style="max-height:200px;">
+    <rect x="110" y="15" width="40" height="170" rx="5" fill="#8B5E3C"/>
+    <line x1="110" y1="45" x2="150" y2="45" stroke="#D4A96A" stroke-width="2.5"/>
+    <line x1="110" y1="68" x2="150" y2="68" stroke="#D4A96A" stroke-width="2.5"/>
+    <line x1="110" y1="91" x2="150" y2="91" stroke="#D4A96A" stroke-width="2.5"/>
+    <line x1="110" y1="114" x2="150" y2="114" stroke="#D4A96A" stroke-width="2.5"/>
+    <line x1="110" y1="137" x2="150" y2="137" stroke="#D4A96A" stroke-width="2.5"/>
+    <line x1="116" y1="16" x2="116" y2="185" stroke="#CCC" stroke-width="1" opacity=".7"/>
+    <line x1="122" y1="16" x2="122" y2="185" stroke="#CCC" stroke-width="1.3" opacity=".7"/>
+    <line x1="128" y1="16" x2="128" y2="185" stroke="#CCC" stroke-width="1.6" opacity=".7"/>
+    <line x1="134" y1="16" x2="134" y2="185" stroke="#CCC" stroke-width="2" opacity=".7"/>
+    <line x1="140" y1="16" x2="140" y2="185" stroke="#CCC" stroke-width="2.4" opacity=".7"/>
+    <line x1="146" y1="16" x2="146" y2="185" stroke="#CCC" stroke-width="2.8" opacity=".7"/>
+    <rect x="100" y="3" width="60" height="16" rx="6" fill="#6B4226"/>
+    <circle cx="103" cy="8" r="4" fill="#D4A96A"/><circle cx="103" cy="14" r="4" fill="#D4A96A"/><circle cx="103" cy="20" r="4" fill="#D4A96A"/>
+    <circle cx="157" cy="8" r="4" fill="#D4A96A"/><circle cx="157" cy="14" r="4" fill="#D4A96A"/><circle cx="157" cy="20" r="4" fill="#D4A96A"/>
+    <ellipse cx="130" cy="315" rx="80" ry="87" fill="#C0392B"/>
+    <ellipse cx="130" cy="228" rx="63" ry="57" fill="#C0392B"/>
+    <rect x="90" y="192" width="80" height="100" fill="#C0392B"/>
+    <circle cx="130" cy="295" r="30" fill="#8B1A0A"/>
+    <circle cx="130" cy="295" r="26" fill="#A01515"/>
+    <circle cx="130" cy="295" r="28" fill="none" stroke="#D4A96A" stroke-width="1.5" stroke-dasharray="4,2.5"/>
+    <rect x="110" y="329" width="40" height="10" rx="4" fill="#6B4226"/>
+    <line x1="116" y1="184" x2="116" y2="340" stroke="#CCC" stroke-width="1" opacity=".8"/>
+    <line x1="122" y1="184" x2="122" y2="340" stroke="#CCC" stroke-width="1.3" opacity=".8"/>
+    <line x1="128" y1="184" x2="128" y2="340" stroke="#CCC" stroke-width="1.6" opacity=".8"/>
+    <line x1="134" y1="184" x2="134" y2="340" stroke="#CCC" stroke-width="2" opacity=".8"/>
+    <line x1="140" y1="184" x2="140" y2="340" stroke="#CCC" stroke-width="2.4" opacity=".8"/>
+    <line x1="146" y1="184" x2="146" y2="340" stroke="#CCC" stroke-width="2.8" opacity=".8"/>
+    <rect x="108" y="180" width="44" height="6" rx="2" fill="#F0E6C8"/>
+    <ellipse cx="130" cy="315" rx="80" ry="87" fill="none" stroke="#8B1A0A" stroke-width="1.5"/>
+    <ellipse cx="130" cy="228" rx="63" ry="57" fill="none" stroke="#8B1A0A" stroke-width="1.5"/>
+    <!-- dots -->
+    <circle id="svgdot-clavijas" class="svgdot" cx="175" cy="10" r="7" fill="#FF6B9D" opacity=".85" style="cursor:pointer;" onclick="selectPartBlock('clavijas')"/>
+    <line x1="160" y1="10" x2="168" y2="10" stroke="#FF6B9D" stroke-width="1.5" stroke-dasharray="3,2" opacity=".6"/>
+    <circle id="svgdot-trastes" class="svgdot" cx="175" cy="80" r="7" fill="#FF6B9D" opacity=".85" style="cursor:pointer;" onclick="selectPartBlock('trastes')"/>
+    <line x1="152" y1="80" x2="168" y2="80" stroke="#FF6B9D" stroke-width="1.5" stroke-dasharray="3,2" opacity=".6"/>
+    <circle id="svgdot-cejuela" class="svgdot" cx="175" cy="183" r="7" fill="#FF6B9D" opacity=".85" style="cursor:pointer;" onclick="selectPartBlock('cejuela')"/>
+    <line x1="153" y1="183" x2="168" y2="183" stroke="#FF6B9D" stroke-width="1.5" stroke-dasharray="3,2" opacity=".6"/>
+    <circle id="svgdot-boca" class="svgdot" cx="175" cy="295" r="7" fill="#FF6B9D" opacity=".85" style="cursor:pointer;" onclick="selectPartBlock('boca')"/>
+    <line x1="160" y1="295" x2="168" y2="295" stroke="#FF6B9D" stroke-width="1.5" stroke-dasharray="3,2" opacity=".6"/>
+    <circle id="svgdot-puente" class="svgdot" cx="175" cy="334" r="7" fill="#FF6B9D" opacity=".85" style="cursor:pointer;" onclick="selectPartBlock('puente')"/>
+    <line x1="152" y1="334" x2="168" y2="334" stroke="#FF6B9D" stroke-width="1.5" stroke-dasharray="3,2" opacity=".6"/>
+    <circle id="svgdot-cuerdas" class="svgdot" cx="68" cy="110" r="7" fill="#FF6B9D" opacity=".85" style="cursor:pointer;" onclick="selectPartBlock('cuerdas')"/>
+    <line x1="75" y1="110" x2="108" y2="110" stroke="#FF6B9D" stroke-width="1.5" stroke-dasharray="3,2" opacity=".6"/>
+  </svg>`;
+}
+
+// ════════════════════════════════════════════
+// RENDER: STRINGS
+// ════════════════════════════════════════════
+function renderStrings(step,dayData){
+  const c=step.content;
+  const indices=c.strings; // array of indices into STRING_DATA
+  const played=new Set();
+
+  const rows=indices.map((idx,i)=>{
+    const s=STRING_DATA[idx];
+    return `<div class="string-row" id="sr-${i}" onclick="playStringRow(${idx},${i})">
+      <div class="string-bar" style="background:${s.color};height:${s.thick}px;width:28px;"></div>
+      <div class="string-row-info">
+        <div class="string-row-name" style="color:${s.color}">Cuerda ${s.num} — ${s.name} (${s.eng})</div>
+        <div class="string-row-hint">${s.desc}</div>
+      </div>
+      <div class="string-check" id="sc-${i}">🔊</div>
+    </div>`;
+  }).join('');
+
+  qs('#zone-content').innerHTML=`
+    <div class="content-block">
+      <div class="block-title">${c.title}</div>
+      <div class="block-subtitle">${c.subtitle}</div>
+      <div class="string-rows">${rows}</div>
+    </div>`;
+  setMainBtn('Tocá cada cuerda primero','',null,true);
+
+  window._stringsPlayed=new Set();
+  window._stringsTotal=indices.length;
+  window.playStringRow=function(idx,i){
+    playString(STRING_DATA[idx].freq);
+    qs(`#sr-${i}`).classList.add('played');
+    qs(`#sc-${i}`).textContent='✅';
+    window._stringsPlayed.add(i);
+    if(window._stringsPlayed.size>=window._stringsTotal){
+      setMainBtn('¡Listo! →','green',advanceStep);
+      showToast('🎵 ¡Escuchaste todas!');
+    }
+  };
+}
+
+// ════════════════════════════════════════════
+// RENDER: NOTES
+// ════════════════════════════════════════════
+const NOTE_FREQS={Do:261,Re:293,Mi:329,Fa:349,Sol:392,La:440,Si:493};
+function renderNotes(step,dayData){
+  const c=step.content;
+  const ENG=['C','D','E','F','G','A','B'];
+  const NOTES=['Do','Re','Mi','Fa','Sol','La','Si'];
+  const played=new Set();
+
+  qs('#zone-content').innerHTML=`
+    <div class="content-block">
+      <div class="block-title">${c.title}</div>
+      <div class="block-subtitle">${c.subtitle}</div>
+      <div class="notes-grid-7" style="margin:10px 0;">
+        ${NOTES.map((n,i)=>`
+          <div class="note-card" id="nc-${i}" onclick="playNoteBlock(${i})">
+            <div class="note-name">${n}</div>
+            <div class="note-eng">${ENG[i]}</div>
+          </div>`).join('')}
+      </div>
+      <div class="tip">
+        <strong>💡 En videos de YouTube</strong> verás las letras: C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si.
+      </div>
+      <div style="text-align:center;font-size:.8rem;color:var(--muted);margin-top:6px;font-weight:700;" id="notes-hint">Tocá las 7 notas para continuar</div>
+    </div>`;
+  setMainBtn('Tocá las 7 notas primero','',null,true);
+
+  window._notesPlayed=new Set();
+  window.playNoteBlock=function(i){
+    const n=NOTES[i];
+    playTone(NOTE_FREQS[n],.5,'sine',.3);
+    document.querySelectorAll('.note-card').forEach(c=>c.classList.remove('playing'));
+    qs(`#nc-${i}`).classList.add('playing');
+    setTimeout(()=>qs(`#nc-${i}`)?.classList.remove('playing'),600);
+    window._notesPlayed.add(i);
+    if(window._notesPlayed.size>=7){
+      setMainBtn('¡Listo! →','green',advanceStep);
+      qs('#notes-hint').textContent='✅ ¡Las tocaste todas!';
+      showToast('🎵 ¡Ya conocés las 7 notas!');
+    }
+  };
+}
+
+// ════════════════════════════════════════════
+// RENDER: GUSANO
+// ════════════════════════════════════════════
+let gInt=null,gStep=0,gPaused=false,gSpeed=1500,gStrings=[];
+
+function renderGusano(step,dayData){
+  const c=step.content;
+  gStrings=c.strings||[0,1,2,3,4,5];
+  gSpeed=c.speed||1500;
+  gStep=0;gPaused=false;
+  if(gInt){clearInterval(gInt);gInt=null;}
+
+  const totalCells=gStrings.length*4;
+  const gridRows=gStrings.map((si,ri)=>{
+    const s=STRING_DATA[si];
+    return `<div class="fret-row-g" style="grid-template-columns:55px repeat(4,1fr);">
+      <div class="fret-lbl-g" style="color:${s.color};">C${s.num} ${s.name.split(' ')[0]}</div>
+      ${[0,1,2,3].map(t=>`<div class="fret-cell-g" id="gc-${ri}-${t}">T${t+1}</div>`).join('')}
+    </div>`;
+  }).join('');
+
+  qs('#zone-content').innerHTML=`
+    <div class="content-block">
+      <div class="block-title">${c.title}</div>
+      <div class="block-subtitle">${c.subtitle}</div>
+      <div class="bella-track"><div class="bella-runner" id="bella">🐕</div></div>
+      <div class="cur-pos-label" id="cur-pos">Presioná Iniciar cuando estés lista</div>
+      <div class="fret-grid" id="fret-grid">${gridRows}</div>
+      <div class="gusano-controls">
+        <button class="g-btn g-btn-go" onclick="startGusanoBlock()">▶️ Iniciar</button>
+        <button class="g-btn g-btn-pause" id="gpause" onclick="pauseGusanoBlock()" disabled>⏸️</button>
+        <button class="g-btn g-btn-pause" onclick="resetGusanoBlock()">🔄</button>
+      </div>
+    </div>`;
+  setMainBtn('Completá el gusano primero','',null,true);
+}
+
+const GFINGERS=['☝️ Índice','✌️ Mayor','🤞 Anular','🤙 Meñique'];
+
+function startGusanoBlock(){
+  if(gInt)return;
+  qs('#gpause').disabled=false;
+  gInt=setInterval(gusanoTick,gSpeed);
+}
+function pauseGusanoBlock(){
+  const pb=qs('#gpause');
+  if(gInt){clearInterval(gInt);gInt=null;pb.textContent='▶️';if(qs('#bella'))qs('#bella').classList.remove('bella-run');}
+  else{gInt=setInterval(gusanoTick,gSpeed);pb.textContent='⏸️';if(qs('#bella'))qs('#bella').classList.add('bella-run');}
+}
+function resetGusanoBlock(){
+  clearInterval(gInt);gInt=null;gStep=0;
+  document.querySelectorAll('.fret-cell-g').forEach(c=>{c.classList.remove('cur','done');const p=c.id.split('-');c.textContent='T'+(parseInt(p[2])+1);});
+  const b=qs('#bella');if(b){b.style.left='0%';b.classList.remove('bella-run');}
+  const pb=qs('#gpause');if(pb){pb.disabled=true;pb.textContent='⏸️';}
+  const cp=qs('#cur-pos');if(cp)cp.textContent='Presioná Iniciar cuando estés lista';
+}
+function gusanoTick(){
+  const total=gStrings.length*4;
+  document.querySelectorAll('.fret-cell-g.cur').forEach(c=>c.classList.remove('cur'));
+  if(gStep<total){
+    const ri=Math.floor(gStep/4),t=gStep%4;
+    const cell=qs(`#gc-${ri}-${t}`);
+    if(cell){cell.classList.add('cur');cell.textContent=GFINGERS[t].split(' ')[0];}
+    for(let p=0;p<gStep;p++){const pc=qs(`#gc-${Math.floor(p/4)}-${p%4}`);if(pc)pc.classList.add('done');}
+    const s=STRING_DATA[gStrings[ri]];
+    const cp=qs('#cur-pos');if(cp)cp.textContent=`Cuerda ${s.num} — ${s.name} · ${GFINGERS[t]}`;
+    const b=qs('#bella');if(b){b.style.left=(gStep/(total-1||1))*85+'%';b.classList.add('bella-run');}
+    playClick(t===0);
+    gStep++;
+  } else {
+    clearInterval(gInt);gInt=null;
+    const b=qs('#bella');if(b)b.classList.remove('bella-run');
+    const cp=qs('#cur-pos');if(cp)cp.textContent='🐕 ¡Bella llegó! ¡Completado!';
+    playSuccess();
+    showToast('🐕 ¡Gusano completo!');
+    setMainBtn('¡Listo! →','green',advanceStep);
+  }
+}
+
+// ════════════════════════════════════════════
+// RENDER: METRO
+// ════════════════════════════════════════════
+let metroInt=null,metroBeat=0,metroBpm=60,metroOn=false;
+
+function renderMetro(step,dayData){
+  const c=step.content;
+  metroBpm=c.bpm||60;
+  if(metroInt){clearInterval(metroInt);metroInt=null;}
+  metroOn=false;metroBeat=0;
+
+  const speedBtns=c.lockBpm?'':`
+    <div class="speed-row-m">
+      <div class="spd-m ${metroBpm===40?'active':''}" onclick="setMetroBpm(40,this)"><span class="si">🐢</span>40</div>
+      <div class="spd-m ${metroBpm===50?'active':''}" onclick="setMetroBpm(50,this)"><span class="si">🐱</span>50</div>
+      <div class="spd-m ${metroBpm===60?'active':''}" onclick="setMetroBpm(60,this)"><span class="si">🐰</span>60</div>
+      <div class="spd-m ${metroBpm===80?'active':''}" onclick="setMetroBpm(80,this)"><span class="si">🚀</span>80</div>
+    </div>`;
+
+  qs('#zone-content').innerHTML=`
+    <div class="content-block">
+      <div class="block-title">${c.title}</div>
+      <div class="block-subtitle">${c.subtitle}</div>
+      <div class="sati-stage">
+        <span class="sati-emoji" id="sati">🐈‍⬛</span>
+        <span class="sati-tail">〰️</span>
+        <div class="bpm-num" id="bpm-display">${metroBpm}</div>
+        <div class="bpm-lbl">BPM</div>
+        <div class="beat-dots" id="beat-dots"></div>
+      </div>
+      ${speedBtns}
+      <div class="metro-ctrls">
+        <button class="g-btn g-btn-go" id="metro-go" onclick="toggleMetroBlock()">▶️ Iniciar</button>
+        <button class="g-btn g-btn-pause" onclick="stopMetroBlock()">⏹️ Parar</button>
+      </div>
+    </div>`;
+  buildBeatDots();
+  setMainBtn('Practicá 1 minuto, luego continúa','',null,true);
+  // Auto-enable after 30s for UX
+  setTimeout(()=>setMainBtn('¡Listo! →','teal',advanceStep),30000);
+}
+function buildBeatDots(){
+  const bd=qs('#beat-dots');if(!bd)return;
+  bd.innerHTML='';
+  for(let i=0;i<4;i++){const d=document.createElement('div');d.className='bdot';d.id='bd'+i;bd.appendChild(d);}
+}
+function setMetroBpm(bpm,el){
+  metroBpm=bpm;
+  const disp=qs('#bpm-display');if(disp)disp.textContent=bpm;
+  document.querySelectorAll('.spd-m').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  if(metroOn){stopMetroBlock();toggleMetroBlock();}
+}
+function toggleMetroBlock(){
+  if(metroOn){stopMetroBlock();return;}
+  metroOn=true;metroBeat=0;
+  const btn=qs('#metro-go');if(btn)btn.textContent='⏸️ Pausar';
+  metroInt=setInterval(()=>{
+    const acc=metroBeat%4===0;
+    playClick(acc);
+    const sati=qs('#sati');if(sati){sati.classList.add('beat');setTimeout(()=>sati?.classList.remove('beat'),80);}
+    document.querySelectorAll('.bdot').forEach((d,i)=>{
+      d.classList.remove('lit','lit1');
+      if(i===metroBeat%4)d.classList.add(acc?'lit1':'lit');
+    });
+    metroBeat++;
+  },60000/metroBpm);
+  metroInt;
+}
+function stopMetroBlock(){
+  metroOn=false;clearInterval(metroInt);metroInt=null;
+  const btn=qs('#metro-go');if(btn)btn.textContent='▶️ Iniciar';
+  document.querySelectorAll('.bdot').forEach(d=>d.classList.remove('lit','lit1'));
+}
+
+// ════════════════════════════════════════════
+// RENDER: QUIZ / ALE
+// Store quiz context in module-level vars — never pass through HTML onclick
+// ════════════════════════════════════════════
+let quizTimer=null,quizTime=15,quizPaused=false,quizIdx=0,quizScore=0,quizQs=[];
+let _quizContent=null,_quizIsAle=false; // context stored here, not in HTML
+
+const QUIZ_TOTAL_TIME=60;
+const TIMER_CIRC=144.5; // stroke-dasharray of r=23 circle
+
+function renderQuiz(step,dayData){
+  _quizContent=step.content;
+  _quizIsAle=step.type==='ale';
+  quizQs=[...(_quizContent.questions||[])];
+  if(_quizContent.big) quizQs=shuffle(quizQs);
+  quizIdx=0;quizScore=0;quizPaused=false;
+
+  if(_quizIsAle){
+    qs('#zone-content').innerHTML=`
+      <div class="content-block">
+        <div class="block-title">😤 ${_quizContent.title}</div>
+        <div class="ale-battle">
+          <div class="ale-icon-big">😤</div>
+          <div class="ale-vs">VS</div>
+          <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--pink);">¡Vos, Feli!</div>
+          <div class="ale-bubble">"${_quizContent.taunt}"</div>
+        </div>
+      </div>`;
+    setMainBtn('¡Aceptar desafío! 🥊','yellow',renderQuizQuestion);
+  } else {
+    renderQuizQuestion();
+  }
+}
+
+function shuffle(a){return[...a].sort(()=>Math.random()-.5);}
+
+function renderQuizQuestion(){
+  if(quizIdx>=quizQs.length){endQuiz();return;}
+  const q=quizQs[quizIdx];
+  quizTime=QUIZ_TOTAL_TIME;
+  quizPaused=false;
+
+  const scoreHtml=Array.from({length:quizQs.length},(_,i)=>
+    `<span class="qs${i<quizScore?' on':''}" id="qs${i}">⭐</span>`
+  ).join('');
+
+  // Render buttons with data-answer attribute — no inline JS string escaping
+  const shuffledOpts=shuffle(q.opts);
+  const ansHtml=shuffledOpts.map(o=>
+    `<button class="ans-g" data-opt="${o.replace(/"/g,'&quot;')}">${o}</button>`
+  ).join('');
+
+  qs('#zone-content').innerHTML=`
+    <div class="content-block">
+      <div class="block-title" style="font-size:1rem;">${_quizIsAle?'😤 Desafío':'🔍 Quiz'}</div>
+      <div class="q-progress">Pregunta ${quizIdx+1} de ${quizQs.length}</div>
+      <div class="q-score">${scoreHtml}</div>
+      <div class="quiz-q">${q.q}</div>
+      <div class="timer-row">
+        <div class="timer-ring-w">
+          <svg class="t-svg" width="58" height="58" viewBox="0 0 58 58">
+            <circle class="t-bg" cx="29" cy="29" r="23"/>
+            <circle class="t-arc" id="t-arc" cx="29" cy="29" r="23"
+              stroke-dasharray="${TIMER_CIRC}" stroke-dashoffset="0"/>
+          </svg>
+          <div class="t-center" id="t-num">${QUIZ_TOTAL_TIME}</div>
+        </div>
+        <button class="pause-quiz-btn" id="pause-qbtn" onclick="toggleQuizPause()">⏸️ Frenar</button>
+      </div>
+      <div class="answers-g" id="ans-grid">${ansHtml}</div>
+    </div>`;
+
+  // Attach click handlers via JS — safe, no escaping issues
+  document.querySelectorAll('.ans-g').forEach(btn=>{
+    btn.addEventListener('click',()=>handleQuizAns(btn,btn.dataset.opt,q.a));
+  });
+
+  setMainBtn('','',null,true);
+  startQuizTimer(q.a);
+}
+
+function toggleQuizPause(){
+  quizPaused=!quizPaused;
+  const btn=qs('#pause-qbtn');
+  if(btn){
+    btn.textContent=quizPaused?'▶️ Seguir':'⏸️ Frenar';
+    btn.classList.toggle('paused',quizPaused);
+  }
+}
+
+function startQuizTimer(correctAnswer){
+  clearInterval(quizTimer);
+  quizTimer=setInterval(()=>{
+    if(quizPaused)return;
+    quizTime--;
+    const arc=qs('#t-arc'),num=qs('#t-num');
+    if(arc) arc.style.strokeDashoffset=TIMER_CIRC-(quizTime/QUIZ_TOTAL_TIME)*TIMER_CIRC;
+    if(num) num.textContent=quizTime;
+    const color=quizTime>30?'var(--yellow)':quizTime>10?'var(--orange)':'var(--red)';
+    if(arc) arc.style.stroke=color;
+    if(num) num.style.color=color;
+    if(quizTime<=0){
+      clearInterval(quizTimer);
+      playWrong();
+      showToast('⏰ Era: '+correctAnswer);
+      document.querySelectorAll('.ans-g').forEach(b=>{
+        if(b.dataset.opt===correctAnswer) b.classList.add('ok');
+        b.disabled=true;
+      });
+      setTimeout(()=>{quizIdx++;renderQuizQuestion();},1200);
+    }
+  },1000);
+}
+
+function handleQuizAns(btn,chosen,correct){
+  clearInterval(quizTimer);
+  document.querySelectorAll('.ans-g').forEach(b=>b.disabled=true);
+  if(chosen===correct){
+    btn.classList.add('ok');
+    playSuccess();
+    quizScore++;
+    const star=qs(`#qs${quizIdx}`);
+    if(star) star.classList.add('on');
+    showToast('✅ ¡Correcto!');
+  } else {
+    btn.classList.add('no');
+    playWrong();
+    document.querySelectorAll('.ans-g').forEach(b=>{
+      if(b.dataset.opt===correct) b.classList.add('ok');
+    });
+    showToast('❌ Era: '+correct);
+  }
+  setTimeout(()=>{quizIdx++;renderQuizQuestion();},1100);
+}
+
+function endQuiz(){
+  clearInterval(quizTimer);
+  const c=_quizContent;
+  const isAle=_quizIsAle;
+  const pct=quizScore/quizQs.length;
+  const won=pct>=0.6;
+  if(isAle){
+    const msg=won?c.winText:c.loseText;
+    qs('#zone-content').innerHTML=`
+      <div class="content-block">
+        <div class="ale-battle">
+          <div class="ale-icon-big">${won?'🏳️':'😏'}</div>
+          <div class="ale-bubble">"${msg}"</div>
+          <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:${won?'var(--green)':'var(--yellow)'};">
+            ${won?'¡GANASTE! 🏆':'¡Casi! 💪'}
+          </div>
+          <div style="font-size:.85rem;color:var(--muted);font-weight:700;">
+            Acertaste ${quizScore} de ${quizQs.length}
+          </div>
+        </div>
+      </div>`;
+    if(won){confetti(true);playSuccess();}
+  } else {
+    qs('#zone-content').innerHTML=`
+      <div class="content-block">
+        <div class="complete-block">
+          <div class="complete-emoji">${pct>=0.8?'🏆':pct>=0.6?'🌟':'💪'}</div>
+          <div class="complete-title">${pct>=0.8?'¡Excelente!':pct>=0.6?'¡Bien!':'¡Seguí practicando!'}</div>
+          <div class="complete-stars">${quizScore} de ${quizQs.length} ⭐</div>
+        </div>
+      </div>`;
+    if(pct>=0.8)confetti();
+  }
+  setMainBtn('¡Listo! →','green',advanceStep);
+}
+
+// ════════════════════════════════════════════
+// RENDER: VIDEO
+// ════════════════════════════════════════════
+function renderVideo(step,dayData){
+  const c=step.content;
+  qs('#zone-content').innerHTML=`
+    <div class="content-block">
+      <div class="block-title">${c.title}</div>
+      <div class="video-rec">
+        <div class="video-thumb-big">${c.emoji}</div>
+        <div class="video-title-big">${c.videoTitle}</div>
+        <div class="video-desc-big">${c.desc}</div>
+        <a class="video-link" href="${c.url}" target="_blank">▶️ Buscar en YouTube</a>
+        <div class="tip" style="text-align:left;">${c.tip}</div>
+      </div>
+    </div>`;
+  setMainBtn('¡Vi el video! →','teal',advanceStep);
+}
+
+// ════════════════════════════════════════════
+// RENDER: MELODY
+// ════════════════════════════════════════════
+function renderMelody(step,dayData){
+  const c=step.content;
+  let active=0;
+
+  const rows=c.notes.map((n,i)=>`
+    <div class="melody-step ${i===0?'active-step':''}" id="ms-${i}" onclick="playMelodyNote(${i})">
+      <div class="ms-note">${n.traste===-1?'🎵':n.note}</div>
+      <div class="ms-info">
+        <div class="ms-string">${n.string}</div>
+        <div class="ms-finger">${n.finger}</div>
+      </div>
+      <div class="ms-check" id="msc-${i}">▶️</div>
+    </div>`).join('');
+
+  qs('#zone-content').innerHTML=`
+    <div class="content-block">
+      <div class="block-title">${c.cancion}</div>
+      <div class="block-subtitle">${c.title} — Tocá cada nota en orden</div>
+      <div class="melody-notes">${rows}</div>
+    </div>`;
+  setMainBtn('Tocá las notas en orden','',null,true);
+
+  window._melodyActive=0;
+  window._melodyTotal=c.notes.length;
+  window.playMelodyNote=function(i){
+    if(i!==window._melodyActive)return;
+    const n=c.notes[i];
+    if(n.traste>=0) playString(STRING_DATA[5-Math.min(n.traste,5)]?.freq||330);
+    else playTone(600,.3);
+    qs(`#ms-${i}`).classList.remove('active-step');
+    qs(`#ms-${i}`).classList.add('done-step');
+    qs(`#msc-${i}`).textContent='✅';
+    window._melodyActive++;
+    if(window._melodyActive<window._melodyTotal){
+      qs(`#ms-${window._melodyActive}`)?.classList.add('active-step');
+      qs(`#msc-${window._melodyActive}`).textContent='▶️';
+    } else {
+      setMainBtn('¡Listo! →','green',advanceStep);
+      showToast('🌟 ¡Estrellita!');
+      playSuccess();
+    }
+  };
+}
+
+// ════════════════════════════════════════════
+// RENDER: CHORD
+// ════════════════════════════════════════════
+function renderChord(step,dayData){
+  const c=step.content;
+
+  // Build chord diagram SVG
+  const STRINGS=6;const FRETS=4;
+  const sw=40;const fh=36;const ox=50;const oy=30;
+  let svg=`<svg viewBox="0 0 ${ox+sw*STRINGS+20} ${oy+fh*FRETS+20}" width="180" height="160">`;
+  // Nut
+  svg+=`<rect x="${ox}" y="${oy-3}" width="${sw*(STRINGS-1)}" height="4" fill="#F0E6C8"/>`;
+  // Frets
+  for(let f=0;f<=FRETS;f++){svg+=`<line x1="${ox}" y1="${oy+f*fh}" x2="${ox+sw*(STRINGS-1)}" y2="${oy+f*fh}" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/>`;}
+  // Strings lines
+  for(let s=0;s<STRINGS;s++){svg+=`<line x1="${ox+s*sw}" y1="${oy}" x2="${ox+s*sw}" y2="${oy+fh*FRETS}" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>`;}
+  // Open strings
+  (c.openStrings||[]).forEach(sn=>{const x=ox+(6-sn)*sw;svg+=`<circle cx="${x}" cy="${oy-14}" r="7" fill="none" stroke="${'#4ADE80'}" stroke-width="2"/>`;});
+  // Muted strings (not open, not fingered)
+  const fingerStrings=c.fingers.map(f=>f.string);
+  const openSt=c.openStrings||[];
+  for(let sn=1;sn<=6;sn++){
+    if(!fingerStrings.includes(sn)&&!openSt.includes(sn)){
+      const x=ox+(6-sn)*sw;
+      svg+=`<text x="${x}" y="${oy-8}" text-anchor="middle" font-size="14" fill="rgba(255,255,255,.3)">✕</text>`;
+    }
+  }
+  // Finger dots
+  c.fingers.forEach(f=>{
+    const x=ox+(6-f.string)*sw;const y=oy+(f.fret-0.5)*fh;
+    const colors=['','#FF6B9D','#FFD93D','#4ECDC4','#A855F7'];
+    svg+=`<circle cx="${x}" cy="${y}" r="13" fill="${colors[f.finger]||'#FF6B9D'}"/>`;
+    svg+=`<text x="${x}" y="${y+5}" text-anchor="middle" font-size="11" font-weight="bold" fill="white">${f.finger}</text>`;
+  });
+  svg+='</svg>';
+
+  qs('#zone-content').innerHTML=`
+    <div class="content-block">
+      <div class="block-title">${c.title}</div>
+      <div class="block-subtitle">${c.subtitle}</div>
+      <div class="chord-diagram">${svg}</div>
+      <div class="c-card" style="margin-top:10px;">
+        ${c.fingers.map(f=>`
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:${['','#FF6B9D','#FFD93D','#4ECDC4','#A855F7'][f.finger]||'#FF6B9D'};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;color:white;flex-shrink:0;">${f.finger}</div>
+            <div style="font-size:.82rem;"><strong style="color:var(--text)">${f.label}</strong> — Cuerda ${f.string}, traste ${f.fret}</div>
+          </div>`).join('')}
+        <div class="tip" style="margin-top:6px;"><strong>💡</strong> ${c.tip}</div>
+      </div>
+    </div>`;
+  setMainBtn('¡Listo, lo practiqué! →','green',advanceStep);
+}
+
+// ════════════════════════════════════════════
+// RENDER: COMPLETE (end of session)
+// ════════════════════════════════════════════
+function renderComplete(dayData){
+  const isGrad=dayData.type==='graduation';
+  qs('#zone-content').innerHTML=`
+    <div class="content-block">
+      <div class="complete-block">
+        <div class="complete-emoji">${isGrad?'🎓':dayData.type==='battle'?'⚔️':dayData.type==='rest'?'😴':'🎸'}</div>
+        <div class="complete-title" style="font-size:${isGrad?'1.8rem':'1.4rem'}">
+          ${isGrad?'¡Sos guitarrista, Feli!':'¡Sesión completada!'}
+        </div>
+        <div class="complete-learned">${dayData.learned}</div>
+        <div class="complete-stars">+${getTotalStarsForDay(dayData)} ⭐ hoy</div>
+        <div class="complete-tomorrow">${dayData.tomorrow}</div>
+      </div>
+    </div>`;
+  buildStepBar(dayData.steps.length+1);
+  // mark last pip done
+  document.querySelectorAll('.step-pip').forEach(p=>p.classList.add('done'));
+  setMainBtn(isGrad?'🎓 ¡Hasta siempre!':'🌙 ¡Hasta mañana!','green',()=>lockSession(dayData));
+  if(isGrad) confetti(true);
+  playSuccess();
+}
+
+function getTotalStarsForDay(dayData){
+  return getStepsForDay(dayData).reduce((acc,s)=>acc+(s.stars||0),0);
+}
+
+// ════════════════════════════════════════════
+// LOCK SESSION
+// ════════════════════════════════════════════
+function lockSession(dayData){
+  // Stop all timers
+  clearInterval(gInt);gInt=null;
+  clearInterval(metroInt);metroInt=null;
+  clearInterval(quizTimer);quizTimer=null;
+
+  S.sessionDone=true;
+  S.daysCompleted++;
+  S.streak++;
+  save();
+  showLocked(dayData);
+}
+
+function showLocked(dayData){
+  const locked=qs('#locked-screen');
+  const r=getRank();
+  const nextDay=DAYS[S.currentDay]||null;
+
+  qs('#lock-msg').textContent='Descansá los dedos. La guitarra te espera en la próxima sesión.';
+  qs('#lock-learned').innerHTML=`<strong>Hoy aprendiste:</strong><br>${dayData?.learned||'¡Gran sesión!'}`;
+  qs('#lock-rank').innerHTML=`${r.icon} ${r.name}`;
+  qs('#lock-stars').textContent=S.stars;
+  qs('#lock-days').textContent=S.daysCompleted;
+  qs('#lock-streak').textContent=S.streak;
+  qs('#lock-tomorrow').textContent=dayData?.tomorrow||'¡Seguí practicando!';
+  qs('#lock-next-day').textContent=nextDay?`Próxima sesión: Día ${S.currentDay+1}`:'¡Completaste el curso de 30 días! 🎓';
+
+  buildLockMap();
+
+  locked.style.display='flex';
+  qs('#app').style.display='none';
+
+  // Always remove and recreate the button so onclick is always fresh
+  const old=qs('#next-session-btn');
+  if(old) old.remove();
+
+  const btn=document.createElement('button');
+  btn.id='next-session-btn';
+  btn.textContent='▶️ Siguiente sesión';
+  btn.style.cssText='margin-top:16px;padding:14px 28px;border-radius:16px;background:linear-gradient(135deg,var(--pink),var(--purple));border:none;color:white;font-family:"Fredoka One",cursive;font-size:1rem;cursor:pointer;box-shadow:0 6px 20px rgba(168,85,247,.4);';
+  btn.onclick=advanceToNextDay;
+  qs('#locked-screen').querySelector('div').appendChild(btn);
+}
+
+function advanceToNextDay(){
+  S.currentDay++;
+  S.currentStep=0;
+  S.sessionDone=false;
+  save();
+  goToApp();
+  startSession();
+}
+
+function buildLockMap(){
+  const map=qs('#lock-map');if(!map)return;
+  map.innerHTML='';
+  for(let i=0;i<Math.min(S.currentDay,30);i++){
+    const d=DAYS[i];
+    const dot=document.createElement('div');
+    dot.className='pm-dot'+(i<S.daysCompleted?' done':i===S.daysCompleted-1?' today':'');
+    if(d?.type==='rest')dot.classList.add('rest');
+    if(d?.type==='battle')dot.classList.add('battle');
+    dot.textContent=i+1;
+    map.appendChild(dot);
+  }
+}
+
+// ════════════════════════════════════════════
+// PIN / RESET
+// ════════════════════════════════════════════
+const CORRECT_PIN='1234';
+let _pinBuffer='';
+let _pinAction=null; // 'day' | 'all'
+
+function askPin(action){
+  _pinAction=action;
+  _pinBuffer='';
+  const modal=qs('#pin-modal');
+  const icon=qs('#pin-icon');
+  const title=qs('#pin-title');
+  const desc=qs('#pin-desc');
+  if(action==='day'){
+    icon.textContent='🔄';
+    title.textContent='Reiniciar día';
+    desc.textContent='Ingresá la clave para repetir la sesión de hoy desde el principio';
+  } else {
+    icon.textContent='⚠️';
+    title.textContent='Reiniciar todo el progreso';
+    desc.textContent='Ingresá la clave para borrar todo y empezar desde el Día 1';
+  }
+  updatePinDots();
+  modal.style.display='flex';
+}
+
+function closePinModal(){
+  _pinBuffer='';
+  _pinAction=null;
+  qs('#pin-modal').style.display='none';
+  updatePinDots();
+}
+
+function pinPress(digit){
+  if(_pinBuffer.length>=4)return;
+  _pinBuffer+=digit;
+  updatePinDots();
+  if(_pinBuffer.length===4) setTimeout(checkPin,120);
+}
+
+function pinDel(){
+  _pinBuffer=_pinBuffer.slice(0,-1);
+  updatePinDots();
+}
+
+function pinClear(){
+  _pinBuffer='';
+  updatePinDots();
+}
+
+function updatePinDots(){
+  for(let i=0;i<4;i++){
+    const dot=qs('#pd'+i);
+    if(!dot)return;
+    if(i<_pinBuffer.length){
+      dot.style.background='var(--pink)';
+      dot.style.borderColor='var(--pink)';
+      dot.style.boxShadow='0 0 8px rgba(255,107,157,.6)';
+    } else {
+      dot.style.background='transparent';
+      dot.style.borderColor='rgba(255,255,255,.2)';
+      dot.style.boxShadow='none';
+    }
+  }
+}
+
+function checkPin(){
+  if(_pinBuffer===CORRECT_PIN){
+    for(let i=0;i<4;i++){
+      const dot=qs('#pd'+i);
+      if(dot){dot.style.background='var(--green)';dot.style.borderColor='var(--green)';}
+    }
+    const action=_pinAction; // save BEFORE closePinModal nullifies it
+    const prevTarget=_prevDayTarget;
+    setTimeout(()=>{
+      closePinModal();
+      if(action==='day') doResetDay();
+      else if(action==='all') doResetAll();
+      else if(action==='prevday') doReplayDay(prevTarget);
+    },400);
+  } else {
+    // Wrong — shake and clear
+    const dotsEl=qs('#pin-dots');
+    if(dotsEl){
+      dotsEl.classList.add('pin-shake');
+      setTimeout(()=>dotsEl.classList.remove('pin-shake'),400);
+    }
+    for(let i=0;i<4;i++){
+      const dot=qs('#pd'+i);
+      if(dot){dot.style.background='var(--red)';dot.style.borderColor='var(--red)';}
+    }
+    setTimeout(()=>{_pinBuffer='';updatePinDots();},600);
+    showToast('❌ Clave incorrecta');
+  }
+}
+
+function doReplayDay(dayIndex){
+  // Replay a previous day without affecting overall progress
+  S.currentDay=dayIndex+1;
+  S.currentStep=0;
+  S.sessionDone=false;
+  save();
+  showToast('📚 Rehaciendo día '+(dayIndex+1));
+  goToApp();
+  startSession();
+}
+
+function goToApp(){
+  qs('#locked-screen').style.display='none';
+  qs('#pin-modal').style.display='none';
+  qs('#app').style.display='flex';
+  // Stop any lingering timers
+  clearInterval(gInt);gInt=null;
+  clearInterval(metroInt);metroInt=null;
+  clearInterval(quizTimer);quizTimer=null;
+}
+
+function doResetDay(){
+  S.currentStep=0;
+  S.sessionDone=false;
+  save();
+  showToast('🔄 Día reiniciado — ¡a practicar!');
+  goToApp();
+  startSession();
+}
+
+function doResetAll(){
+  Object.assign(S,{
+    stars:0,daysCompleted:0,streak:0,
+    currentDay:1,currentStep:0,
+    sessionDone:false,stickers:[]
+  });
+  save();
+  showToast('⚠️ Progreso reiniciado — ¡Día 1!');
+  goToApp();
+  startSession();
+}
+
+// ════════════════════════════════════════════
+// PREVIOUS SESSIONS SIDEBAR
+// ════════════════════════════════════════════
+function openPrevPanel(){
+  const list=qs('#prev-list');
+  list.innerHTML='';
+  const TYPE_ICONS={session:'🎸',rest:'😴',battle:'😤',graduation:'🎓'};
+  for(let i=0;i<S.daysCompleted;i++){
+    const d=DAYS[i];if(!d)continue;
+    const item=document.createElement('div');
+    item.className='prev-item done';
+    item.innerHTML=`
+      <div class="prev-num">${i+1}</div>
+      <div class="prev-info">
+        <div class="prev-title">${d.title}</div>
+        <div class="prev-type">${TYPE_ICONS[d.type]||'🎸'} ${d.type==='session'?'Sesión':d.type==='rest'?'Descanso':d.type==='battle'?'Desafío':'Graduación'}</div>
+      </div>
+      <button class="prev-redo" onclick="redoPrevDay(${i})">🔄 Rehacer</button>`;
+    list.appendChild(item);
+  }
+  if(S.daysCompleted===0){
+    list.innerHTML='<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:20px;">Completá tu primer día para ver el historial.</div>';
+  }
+  qs('#prev-panel').classList.add('open');
+  qs('#prev-overlay').classList.add('open');
+}
+
+function closePrevPanel(){
+  qs('#prev-panel').classList.remove('open');
+  qs('#prev-overlay').classList.remove('open');
+}
+
+function redoPrevDay(dayIndex){
+  closePrevPanel();
+  doReplayDay(dayIndex);
+}
+
+let _prevDayTarget=0;
+
+// ════════════════════════════════════════════
+// RENDER: CHALLENGE (physical guitar task)
+// ════════════════════════════════════════════
+let _challengeTimer=null;
+
+function renderChallenge(step){
+  const c=step.content;
+  let timeLeft=c.timer||120;
+  let timerRunning=false;
+  let challengeDone=false;
+  const CIRC=213.6; // r=34 circle
+
+  qs('#zone-content').innerHTML=`
+    <div class="content-block">
+      <div class="block-title">${c.title} <span style="font-size:.75em;color:var(--orange);">✨ Extra</span></div>
+      <div class="challenge-wrap">
+        <div class="challenge-badge">${c.emoji}</div>
+        <div class="challenge-box">
+          <div class="challenge-task">${c.task}</div>
+          <div class="challenge-timer-ring">
+            <svg style="transform:rotate(-90deg)" width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6"/>
+              <circle id="ch-arc" cx="40" cy="40" r="34" fill="none"
+                stroke="var(--orange)" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="${CIRC}" stroke-dashoffset="0"/>
+            </svg>
+            <div class="challenge-timer-num" id="ch-num">${formatTime(timeLeft)}</div>
+          </div>
+          <div class="challenge-bonus">⭐ +${c.stars} bonus si lo hacés</div>
+        </div>
+        <div class="challenge-done" id="ch-done">🎉 ¡Reto completado! +${c.stars} ⭐</div>
+        <div class="challenge-btns">
+          <button class="g-btn g-btn-go" id="ch-start" onclick="startChallengeTimer(${c.timer},${CIRC})" style="flex:2;">▶️ Empezar timer</button>
+          <button class="g-btn g-btn-pause" id="ch-skip" onclick="skipChallenge()" style="flex:1;">Saltar →</button>
+        </div>
+        <button class="main-btn green" id="ch-done-btn" onclick="completeChallenge(${c.stars})" style="display:none;width:100%;max-width:320px;">
+          🎸 ¡Lo hice! +${c.stars} ⭐
+        </button>
+      </div>
+    </div>`;
+  setMainBtn('','',null,true); // hide main btn — challenge has its own buttons
+
+  window._challengeTimeLeft=timeLeft;
+  window._challengeTotal=c.timer||120;
+}
+
+function formatTime(s){
+  return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+}
+
+function startChallengeTimer(total,circ){
+  clearInterval(_challengeTimer);
+  qs('#ch-start').disabled=true;
+  qs('#ch-start').textContent='⏱️ Corriendo...';
+  qs('#ch-done-btn').style.display='block';
+
+  _challengeTimer=setInterval(()=>{
+    window._challengeTimeLeft--;
+    const t=window._challengeTimeLeft;
+    const num=qs('#ch-num');
+    const arc=qs('#ch-arc');
+    if(num) num.textContent=formatTime(t);
+    if(arc) arc.style.strokeDashoffset=circ-(t/window._challengeTotal)*circ;
+    const color=t>total*.5?'var(--orange)':t>total*.2?'var(--yellow)':'var(--red)';
+    if(arc) arc.style.stroke=color;
+    if(num) num.style.color=color;
+    if(t<=0){
+      clearInterval(_challengeTimer);
+      if(num) num.textContent='¡Tiempo!';
+      playSuccess();
+    }
+  },1000);
+}
+
+function completeChallenge(stars){
+  clearInterval(_challengeTimer);
+  addStars(stars);
+  const done=qs('#ch-done');
+  if(done) done.classList.add('show');
+  qs('#ch-done-btn').style.display='none';
+  const skipBtn=qs('#ch-skip');
+  if(skipBtn){skipBtn.textContent='¡Siguiente →';skipBtn.style.background='rgba(74,222,128,.2)';skipBtn.style.color='var(--green)';}
+  confetti();
+  showToast(`🎸 ¡Reto completado! +${stars} ⭐`);
+}
+
+function skipChallenge(){
+  clearInterval(_challengeTimer);
+  // No stars if skipped — advance without calling addStars
+  S.currentStep++;
+  save();
+  renderStep();
+}
+
+// ════════════════════════════════════════════
+// RENDER: RECORD (microphone recording)
+// ════════════════════════════════════════════
+let _mediaRecorder=null;
+let _audioChunks=[];
+let _recordInterval=null;
+let _recordedBlob=null;
+
+function renderRecord(step){
+  const c=step.content;
+
+  qs('#zone-content').innerHTML=`
+    <div class="content-block">
+      <div class="block-title">${c.title} <span style="font-size:.75em;color:var(--purple);">✨ Extra</span></div>
+      <div class="block-subtitle">${c.subtitle}</div>
+      <div class="record-wrap">
+        <div class="record-mic" id="rec-mic" onclick="toggleRecording()">🎙️</div>
+        <div class="record-status" id="rec-status">Tocá el micrófono para grabar</div>
+        <div class="record-timer" id="rec-timer" style="display:none;">0:30</div>
+        <div class="record-waveform" id="rec-wave" style="display:none;">
+          ${Array.from({length:7},(_,i)=>`<div class="record-bar" style="animation-delay:${i*.08}s"></div>`).join('')}
+        </div>
+        <div class="playback-area" id="rec-playback" style="display:none;">
+          <div style="font-size:.85rem;font-weight:700;color:var(--teal);margin-bottom:6px;">¡Grabado! ¿Cómo sonó?</div>
+          <button class="play-rec-btn" onclick="playRecording()">▶️ Escucharme</button>
+          <audio id="rec-audio" style="display:none;"></audio>
+        </div>
+      </div>
+    </div>`;
+  setMainBtn('Saltar →','teal',()=>{S.currentStep++;save();renderStep();});
+}
+
+async function toggleRecording(){
+  if(_mediaRecorder&&_mediaRecorder.state==='recording'){
+    stopRecording();
+    return;
+  }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    _audioChunks=[];
+    _mediaRecorder=new MediaRecorder(stream);
+    _mediaRecorder.ondataavailable=e=>{if(e.data.size>0)_audioChunks.push(e.data);};
+    _mediaRecorder.onstop=()=>{
+      _recordedBlob=new Blob(_audioChunks,{type:'audio/webm'});
+      const url=URL.createObjectURL(_recordedBlob);
+      const audio=qs('#rec-audio');
+      if(audio) audio.src=url;
+      qs('#rec-playback').style.display='block';
+      qs('#rec-wave').style.display='none';
+      qs('#rec-mic').classList.remove('recording');
+      qs('#rec-mic').textContent='🎙️';
+      qs('#rec-status').textContent='¡Grabación lista!';
+      qs('#rec-timer').style.display='none';
+      // Stop all tracks
+      stream.getTracks().forEach(t=>t.stop());
+      // Give stars
+      addStars(step?.stars||2);
+      setMainBtn('¡Siguiente! →','green',()=>{S.currentStep++;save();renderStep();});
+    };
+
+    _mediaRecorder.start();
+    qs('#rec-mic').classList.add('recording');
+    qs('#rec-mic').textContent='⏹️';
+    qs('#rec-status').textContent='Grabando... Tocá la guitarra ahora';
+    qs('#rec-wave').style.display='flex';
+
+    // Countdown 30s
+    let t=30;
+    qs('#rec-timer').style.display='block';
+    qs('#rec-timer').textContent='0:'+String(t).padStart(2,'0');
+    _recordInterval=setInterval(()=>{
+      t--;
+      const el=qs('#rec-timer');
+      if(el) el.textContent='0:'+String(t).padStart(2,'0');
+      if(t<=0){clearInterval(_recordInterval);stopRecording();}
+    },1000);
+  }catch(err){
+    showToast('🎙️ No se pudo acceder al micrófono');
+    qs('#rec-status').textContent='Sin acceso al micrófono — tocá de todas formas 🎸';
+  }
+}
+
+function stopRecording(){
+  clearInterval(_recordInterval);
+  if(_mediaRecorder&&_mediaRecorder.state!=='inactive') _mediaRecorder.stop();
+}
+
+function playRecording(){
+  const audio=qs('#rec-audio');
+  if(audio){audio.play();showToast('🎵 ¡Escuchate!');}
+}
+
+// ════════════════════════════════════════════
+// LONGER SESSIONS (day 10+): inject extra steps
+// ════════════════════════════════════════════
+const WARMUP_STEP={
+  type:'gusano',
+  content:{
+    title:'Calentamiento 🔥',
+    subtitle:'Antes de empezar, 2 minutos de gusano para calentar los dedos. ¡Tomátelo con calma!',
+    strings:[0,1,2,3,4,5],speed:1100
+  },
+  stars:2
+};
+
+const FREE_PLAY_STEP={
+  type:'metro',
+  content:{
+    title:'Práctica libre 🎸',
+    subtitle:'3 minutos para hacer lo que quieras: rasguear, practicar lo que aprendiste, o simplemente explorar. Sati marca el ritmo.',
+    bpm:60,lockBpm:false
+  },
+  stars:2
+};
+
+// Challenge steps per day range (day 10+)
+const CHALLENGES={
+  10:{emoji:'🐛',title:'Reto del día',task:'Hacé el gusano 3 veces seguidas en la cuerda 6 sin mirar los dedos.',timer:120,stars:3},
+  11:{emoji:'🖐️',title:'Reto del día',task:'Hacé el gusano completo (las 6 cuerdas) una vez muy lento. Que cada nota suene limpia.',timer:180,stars:3},
+  12:{emoji:'🎵',title:'Reto del día',task:'Tocá cada cuerda al aire de la 6 a la 1 y decí el nombre en voz alta. Tres veces seguidas.',timer:90,stars:3},
+  15:{emoji:'🌟',title:'Reto del día',task:'Tocá las primeras 4 notas de Estrellita sin mirar la pantalla. Solo de memoria.',timer:120,stars:3},
+  16:{emoji:'🌟',title:'Reto del día',task:'Tocá Estrellita completa una vez. Lento está perfecto. No pares aunque te equivoques.',timer:180,stars:4},
+  17:{emoji:'🎤',title:'Reto del día',task:'Cantá "Estrellita dónde estás" mientras la tocás. No importa si no sale perfecto.',timer:180,stars:4},
+  20:{emoji:'🎸',title:'Reto del día',task:'Poné el acorde Em y rasgueá hacia abajo 8 veces seguidas sin que se mueva la mano.',timer:120,stars:3},
+  21:{emoji:'🔄',title:'Reto del día',task:'Cambiá de Em a Am 5 veces seguidas. Tomátelo con calma, sin apuro.',timer:150,stars:4},
+  24:{emoji:'🎵',title:'Reto del día',task:'Tocá Em 4 veces y Am 4 veces, en loop. ¡Eso ya es música real!',timer:180,stars:4},
+  25:{emoji:'🎸',title:'Reto del día',task:'Tocá el gusano completo y después Em y Am 3 veces cada uno. Todo seguido.',timer:240,stars:5},
+};
+
+// Record step (inject from day 12+)
+const RECORD_STEP={
+  type:'record',
+  content:{
+    title:'🎙️ Grabate tocando',
+    subtitle:'Tocá 30 segundos lo que quieras y escuchate. Es opcional pero muy importante.',
+  },
+  stars:2
+};
+
+function getChallengeForDay(dayNum){
+  // Find the most recent challenge defined at or before this day
+  const keys=Object.keys(CHALLENGES).map(Number).filter(k=>k<=dayNum).sort((a,b)=>b-a);
+  if(keys.length===0) return null;
+  return {type:'challenge',content:CHALLENGES[keys[0]],stars:CHALLENGES[keys[0]].stars};
+}
+
+function getStepsForDay(dayData){
+  if(!dayData||dayData.type==='rest'||dayData.type==='graduation') return dayData.steps;
+  const dayNum=dayData.day;
+  if(dayNum<10) return dayData.steps;
+
+  const warmup=WARMUP_STEP;
+  const freePlay=FREE_PLAY_STEP;
+  const challenge=getChallengeForDay(dayNum);
+  const record=dayNum>=12?RECORD_STEP:null;
+
+  // Base: warmup + content + free play
+  let steps=[warmup,...dayData.steps,freePlay];
+  // Add challenge at end (optional, before lock)
+  if(challenge) steps.push(challenge);
+  // Add recording from day 12
+  if(record) steps.push(record);
+  return steps;
+}
+
+// ════════════════════════════════════════════
+// EXPORT / IMPORT
+// ════════════════════════════════════════════
+function exportProgress(){
+  const data=JSON.stringify(S,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='feli_guitarra_progreso.json';a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 Progreso guardado como feli_guitarra_progreso.json');
+}
+
+function importProgress(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(ev)=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      Object.assign(S,data);
+      save();
+      showToast('✅ Progreso cargado correctamente');
+      // Reload the view
+      setTimeout(()=>{
+        if(S.sessionDone){
+          const dayData=DAYS[S.currentDay-1];
+          showLocked(dayData);
+        } else {
+          goToApp();
+          startSession();
+        }
+      },800);
+    }catch(err){showToast('❌ Archivo inválido');}
+  };
+  reader.readAsText(file);
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+load();
+
+// Check if session was already done (show locked)
+if(S.sessionDone&&S.currentDay<=30){
+  const dayData=DAYS[S.currentDay-1];
+  showLocked(dayData);
+} else {
+  if(S.currentDay>30){
+    qs('#app').style.display='flex';
+    qs('#zone-content').innerHTML=`<div class="content-block"><div class="complete-block"><div class="complete-emoji">🎓</div><div class="complete-title">¡Completaste el curso!</div><div class="complete-learned">30 días de guitarra. Sos una guitarrista de verdad.</div><div class="complete-stars">⭐ ${S.stars} estrellas totales</div></div></div>`;
+    setMainBtn('🎸 ¡Seguí tocando!','','',false);
+  } else {
+    qs('#app').style.display='flex';
+    startSession();
+  }
+}
+
+// ── SERVICE WORKER REGISTRATION ──
+// Registers an inline SW via blob URL so it works from a single HTML file
+if('serviceWorker' in navigator){
+  const swCode=`
+const CACHE='guitarra-feli-v3';
+const ASSETS=[self.location.href.split('/sw-')[0]+'/'];
+
+self.addEventListener('install',e=>{
+  e.waitUntil(
+    caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate',e=>{
+  e.waitUntil(
+    caches.keys().then(keys=>Promise.all(
+      keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))
+    )).then(()=>self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch',e=>{
+  e.respondWith(
+    caches.match(e.request).then(cached=>{
+      const network=fetch(e.request).then(res=>{
+        if(res&&res.status===200&&res.type==='basic'){
+          const clone=res.clone();
+          caches.open(CACHE).then(c=>c.put(e.request,clone));
+        }
+        return res;
+      }).catch(()=>cached);
+      return cached||network;
+    })
+  );
+});`;
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl,{scope:'./'})
+    .then(()=>console.log('SW registrado'))
+    .catch(e=>console.log('SW no disponible:',e));
+}
+</script>
+</body>
+</html>
