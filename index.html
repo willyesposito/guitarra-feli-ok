@@ -5,18 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Guitarra con Feli 🎸</title>
 
-<!-- PWA: manifest inline via data URI -->
-<link rel="manifest" href="data:application/manifest+json,{
-  %22name%22:%22Guitarra%20con%20Feli%22,
-  %22short_name%22:%22Guitarra%20Feli%22,
-  %22description%22:%22App%20de%20guitarra%20para%20Feli%22,
-  %22start_url%22:%22.%22,
-  %22display%22:%22standalone%22,
-  %22background_color%22:%22%231A0A2E%22,
-  %22theme_color%22:%22%231A0A2E%22,
-  %22orientation%22:%22portrait%22,
-  %22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20rx='80'%20fill='%231A0A2E'/%3E%3Ctext%20x='256'%20y='330'%20font-size='300'%20text-anchor='middle'%3E%F0%9F%8E%B8%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%20maskable%22}]
-}">
+<!-- PWA: manifest -->
+<link rel="manifest" href="./manifest.json">
 
 <!-- PWA meta -->
 <meta name="theme-color" content="#1A0A2E">
@@ -25,8 +15,8 @@
 <meta name="apple-mobile-web-app-title" content="Guitarra Feli">
 <meta name="mobile-web-app-capable" content="yes">
 
-<!-- Apple touch icon (emoji guitar as SVG) -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%231A0A2E'/><text x='256' y='330' font-size='300' text-anchor='middle'>🎸</text></svg>">
+<!-- Apple touch icon -->
+<link rel="apple-touch-icon" href="./icon-192.png">
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
