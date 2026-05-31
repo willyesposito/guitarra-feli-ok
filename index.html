@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
 <title>Guitarra con Feli 🎸</title>
 
 <!-- PWA: manifest -->
@@ -35,12 +35,35 @@
   --green:#4ADE80;
   --red:#FF4545;
   --text:#F0E6FF;
-  --muted:rgba(240,230,255,.55);
+  --muted:rgba(240,230,255,.72);
 }
 html,body{
   height:100%;width:100%;overflow:hidden;
   font-family:'Nunito',sans-serif;
   background:var(--bg);color:var(--text);
+}
+
+/* ── ACCESIBILIDAD ── */
+/* Foco visible para teclado/lector de pantalla */
+a:focus-visible,button:focus-visible,[role="button"]:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--yellow);
+  outline-offset:2px;
+  border-radius:8px;
+}
+/* Texto solo para lectores de pantalla */
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+/* Respetar "reducir movimiento" del sistema */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
 }
 
 /* ── STARFIELD ── */
@@ -362,12 +385,14 @@ body::before{
   justify-content:center;gap:12px;
 }
 .ale-icon-big{
-  width:90px;height:90px;border-radius:50%;
+  width:120px;height:120px;border-radius:50%;
   background:linear-gradient(135deg,#FF4545,#C0392B);
   display:flex;align-items:center;justify-content:center;
-  font-size:3rem;border:3px solid rgba(255,255,255,.2);
+  font-size:3.5rem;border:3px solid rgba(255,255,255,.2);
   box-shadow:0 0 30px rgba(255,69,69,.5);
+  overflow:hidden;
 }
+.ale-photo{width:100%;height:100%;object-fit:cover;display:block;}
 .ale-bubble{
   background:rgba(255,69,69,.1);border:2px solid rgba(255,69,69,.3);
   border-radius:14px;padding:12px 16px;
@@ -701,12 +726,52 @@ body::before{
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   background-size:200% auto;animation:rainbowShift 3s linear infinite;
 }
+
+/* ── BONUS: FELIZ CUMPLEAÑOS ── */
+.hdr-cake{
+  width:40px;height:40px;border-radius:12px;flex-shrink:0;
+  background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.12);
+  font-size:1.2rem;cursor:pointer;color:inherit;transition:all .2s;
+}
+.hdr-cake:hover{background:rgba(255,255,255,.18);}
+#bonus-screen{
+  position:fixed;inset:0;z-index:250;background:rgba(14,6,28,.97);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  display:none;flex-direction:column;
+  padding:18px 14px calc(18px + env(safe-area-inset-bottom));
+}
+.bonus-inner{width:100%;max-width:440px;margin:0 auto;display:flex;flex-direction:column;min-height:0;flex:1;}
+.bonus-header{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.bonus-title{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--yellow);}
+.bonus-close{width:44px;height:44px;border-radius:12px;border:2px solid rgba(255,255,255,.15);background:var(--card2);color:var(--text);font-size:1.1rem;cursor:pointer;flex-shrink:0;}
+.bonus-sub{font-size:.88rem;color:var(--muted);margin:6px 0 12px;font-weight:700;line-height:1.4;}
+.bonus-controls{margin-bottom:12px;}
+.bonus-listen{width:100%;padding:14px;border-radius:16px;border:none;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-family:'Fredoka One',cursive;font-size:1.05rem;cursor:pointer;box-shadow:0 6px 20px rgba(168,85,247,.4);}
+.bonus-listen:disabled{opacity:.7;cursor:default;}
+.bonus-notes{display:flex;flex-direction:column;gap:6px;overflow-y:auto;flex:1;min-height:0;padding-right:4px;}
+.bday-step{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:rgba(255,255,255,.05);border:2px solid transparent;border-radius:14px;
+  padding:10px 12px;cursor:pointer;color:var(--text);font-family:inherit;transition:all .15s;}
+.bday-step:hover{background:rgba(255,255,255,.09);}
+.bday-step.active-step{border-color:var(--yellow);background:rgba(255,217,61,.14);transform:scale(1.02);}
+.bday-step .ms-note{font-family:'Fredoka One',cursive;font-size:1.15rem;color:var(--yellow);min-width:62px;display:flex;flex-direction:column;line-height:1.1;}
+.bday-lyric{font-family:'Nunito',sans-serif;font-size:.7rem;color:var(--muted);font-weight:800;}
+.bday-step .ms-info{flex:1;}
+.bday-step .ms-string{font-size:.82rem;font-weight:800;}
+.bday-step .ms-finger{font-size:.74rem;color:var(--muted);font-weight:700;}
+.bday-step .ms-check{font-size:1.1rem;}
+.lock-cake-btn{
+  margin-top:12px;padding:12px 22px;border-radius:14px;border:2px solid rgba(255,217,61,.4);
+  background:rgba(255,217,61,.12);color:var(--yellow);
+  font-family:'Fredoka One',cursive;font-size:.95rem;cursor:pointer;transition:all .2s;
+}
+.lock-cake-btn:hover{background:rgba(255,217,61,.2);}
 </style>
 </head>
 <body>
 
-<canvas id="cnv"></canvas>
-<div class="toast" id="toast">🌟</div>
+<canvas id="cnv" aria-hidden="true"></canvas>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">🌟</div>
 
 <!-- ═══════════════════════════════════
      LOCKED SCREEN
@@ -736,6 +801,7 @@ body::before{
     <div class="lock-tomorrow" id="lock-tomorrow">🌅 Mañana: ¡nueva sesión!</div>
     <div class="lock-next-day" id="lock-next-day"></div>
     <button onclick="openPrevPanel()" style="margin-top:12px;padding:10px 20px;border-radius:12px;border:2px solid rgba(255,255,255,.12);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;transition:all .2s;" onmouseover="this.style.color=getComputedStyle(document.documentElement).getPropertyValue('--text')" onmouseout="this.style.color=''">📚 Rehacer un día anterior</button>
+    <button class="lock-cake-btn" onclick="openBirthday()">🎂 Tocar "Feliz Cumpleaños"</button>
     <div style="display:flex;gap:10px;margin-top:14px;width:100%;max-width:320px;">
       <button onclick="exportProgress()" style="flex:1;padding:10px;border-radius:12px;border:2px solid rgba(255,255,255,.1);background:var(--card2);color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;font-size:.8rem;cursor:pointer;">📥 Guardar progreso</button>
       <label style="flex:1;padding:10px;border-radius:12px;border:2px solid rgba(255,255,255,.1);background:var(--card2);color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;font-size:.8rem;cursor:pointer;text-align:center;">
@@ -801,7 +867,10 @@ body::before{
         <div class="hdr-day" id="hdr-day">Día 1</div>
         <div class="hdr-rank" id="hdr-rank"><span id="hdr-rank-icon">🐭</span> Judy Hopps Rookie</div>
       </div>
-      <div class="hdr-stars">⭐ <span id="hdr-stars">0</span></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="hdr-cake" onclick="openBirthday()" aria-label="Tocar Feliz Cumpleaños">🎂</button>
+        <div class="hdr-stars" aria-label="Estrellas">⭐ <span id="hdr-stars">0</span></div>
+      </div>
     </div>
     <div class="step-bar" id="step-bar"></div>
   </div>
@@ -814,6 +883,23 @@ body::before{
   <!-- FOOTER -->
   <div id="zone-footer">
     <button class="main-btn" id="main-btn" onclick="handleMainBtn()">Siguiente →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     BONUS: FELIZ CUMPLEAÑOS
+════════════════════════════════════ -->
+<div id="bonus-screen" role="dialog" aria-modal="true" aria-labelledby="bonus-title">
+  <div class="bonus-inner">
+    <div class="bonus-header">
+      <div class="bonus-title" id="bonus-title">🎂 Feliz Cumpleaños</div>
+      <button class="bonus-close" onclick="closeBirthday()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="bonus-sub">Tocá las notas en orden o apretá <strong>Escuchar</strong> para oír la canción entera. 🎵</div>
+    <div class="bonus-controls">
+      <button class="bonus-listen" id="bonus-listen" onclick="playBirthdayAll()">▶️ Escuchar la canción</button>
+    </div>
+    <div class="bonus-notes" id="bonus-notes"></div>
   </div>
 </div>
 
@@ -832,6 +918,9 @@ const S = {
 };
 
 function save(){ try{localStorage.setItem('feli_v3',JSON.stringify(S));}catch(e){} }
+// Guardado extra de seguridad: al cerrar la app o cambiar de pestaña
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') save(); });
+window.addEventListener('pagehide',save);
 function load(){
   try{
     const d=localStorage.getItem('feli_v3');
@@ -1709,12 +1798,12 @@ const DAYS = [
 // DATA
 // ════════════════════════════════════════════
 const STRING_DATA=[
-  {num:6,name:'Mi grave',eng:'E',color:'#FF6B9D',thick:7,desc:'La más gruesa. Suena grave, como un oso.',freq:82},
-  {num:5,name:'La',eng:'A',color:'#FF8C42',thick:5.5,desc:'La segunda. Empieza muchos acordes.',freq:110},
-  {num:4,name:'Re',eng:'D',color:'#FFD93D',thick:4.5,desc:'En el medio. Nota Re.',freq:147},
-  {num:3,name:'Sol',eng:'G',color:'#4ECDC4',thick:3.5,desc:'En el medio. Nota Sol.',freq:196},
-  {num:2,name:'Si',eng:'B',color:'#A855F7',thick:2,desc:'Segunda más fina. Nota Si.',freq:247},
-  {num:1,name:'Mi agudo',eng:'e',color:'#4ADE80',thick:1.5,desc:'La más fina. La misma nota que la 6 pero mucho más aguda.',freq:330},
+  {num:6,name:'Mi grave',eng:'E',color:'#FF6B9D',thick:7,desc:'La más gruesa. Suena grave, como un oso.',freq:82.41},
+  {num:5,name:'La',eng:'A',color:'#FF8C42',thick:5.5,desc:'La segunda. Empieza muchos acordes.',freq:110.00},
+  {num:4,name:'Re',eng:'D',color:'#FFD93D',thick:4.5,desc:'En el medio. Nota Re.',freq:146.83},
+  {num:3,name:'Sol',eng:'G',color:'#4ECDC4',thick:3.5,desc:'En el medio. Nota Sol.',freq:196.00},
+  {num:2,name:'Si',eng:'B',color:'#A855F7',thick:2,desc:'Segunda más fina. Nota Si.',freq:246.94},
+  {num:1,name:'Mi agudo',eng:'e',color:'#4ADE80',thick:1.5,desc:'La más fina. La misma nota que la 6 pero mucho más aguda.',freq:329.63},
 ];
 
 const PARTS_DATA={
@@ -1749,19 +1838,36 @@ function playTone(freq,dur=.4,type='sine',vol=.25){
     o.start();o.stop(ac.currentTime+dur);
   }catch(e){}
 }
-function playString(freq){
+function playString(freq,dur=1.2){
   try{
-    const ac=getAC();
-    [{f:freq,t:'sawtooth',v:.25,d:1.2},{f:freq*2,t:'sine',v:.08,d:.8}].forEach(({f,t,v,d})=>{
+    const ac=getAC(),t0=ac.currentTime;
+    // Pulsación de cuerda: fundamental + armónicos, con un filtro que se cierra
+    // (brillo al ataque y se apaga) para un timbre más parecido a una guitarra.
+    const lp=ac.createBiquadFilter();
+    lp.type='lowpass';
+    lp.frequency.setValueAtTime(Math.min(freq*8,7000),t0);
+    lp.frequency.exponentialRampToValueAtTime(Math.max(freq*2,400),t0+dur);
+    lp.connect(ac.destination);
+    [{m:1,t:'triangle',v:.30},{m:2,t:'sine',v:.10},{m:3,t:'sine',v:.05}].forEach(({m,t,v})=>{
       const o=ac.createOscillator(),g=ac.createGain();
-      o.connect(g);g.connect(ac.destination);
-      o.frequency.value=f;o.type=t;
-      g.gain.setValueAtTime(v,ac.currentTime);
-      g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);
-      o.start();o.stop(ac.currentTime+d);
+      o.connect(g);g.connect(lp);
+      o.frequency.value=freq*m;o.type=t;
+      g.gain.setValueAtTime(0,t0);
+      g.gain.linearRampToValueAtTime(v,t0+.008);        // ataque rápido
+      g.gain.exponentialRampToValueAtTime(.001,t0+dur); // decaimiento
+      o.start(t0);o.stop(t0+dur);
     });
   }catch(e){}
 }
+
+// Frecuencias reales de notas (afinación estándar A4=440) para tocar melodías
+const NOTE_FREQ={
+  'Do':261.63,'Do#':277.18,'Re':293.66,'Re#':311.13,'Mi':329.63,'Fa':349.23,
+  'Fa#':369.99,'Sol':392.00,'Sol#':415.30,'La':440.00,'La#':466.16,'Si':493.88,
+  // octava aguda (↑)
+  'Do↑':523.25,'Do#↑':554.37,'Re↑':587.33,'Re#↑':622.25,'Mi↑':659.25,
+  'Fa↑':698.46,'Fa#↑':739.99,'Sol↑':783.99,'La↑':880.00,'Si↑':987.77,
+};
 function playClick(accent=false){playTone(accent?1200:800,.05,'square',.3);}
 function playSuccess(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,.3,'sine',.25),i*120));}
 function playWrong(){playTone(180,.35,'sawtooth',.2);}
@@ -2278,6 +2384,23 @@ function stopMetroBlock(){
 let quizTimer=null,quizTime=15,quizPaused=false,quizIdx=0,quizScore=0,quizQs=[];
 let _quizContent=null,_quizIsAle=false; // context stored here, not in HTML
 
+// ── Fotos del Tío Ale ──
+// Subí 3 fotos al repo con EXACTAMENTE estos nombres (en la carpeta raíz):
+//   ale-reta.jpg   → cara provocando / desafiante (se ve al empezar la batalla)
+//   ale-gana.jpg   → cara festejando / ganador   (se ve cuando Feli PIERDE)
+//   ale-pierde.jpg → cara derrotado / rendido     (se ve cuando Feli GANA)
+// Si todavía no subiste alguna, se muestra un emoji como respaldo automático.
+const ALE_FACES={
+  reta:  {img:'ale-reta.jpg',  emoji:'😤'},
+  gana:  {img:'ale-gana.jpg',  emoji:'😏'},
+  pierde:{img:'ale-pierde.jpg',emoji:'🏳️'},
+};
+function aleAvatar(key){
+  const f=ALE_FACES[key]||ALE_FACES.reta;
+  // onerror: si la foto no existe todavía, la reemplaza por el emoji centrado
+  return `<div class="ale-icon-big"><img src="${f.img}" alt="Tío Ale" class="ale-photo" onerror="this.replaceWith('${f.emoji}')"></div>`;
+}
+
 const QUIZ_TOTAL_TIME=60;
 const TIMER_CIRC=144.5; // stroke-dasharray of r=23 circle
 
@@ -2293,7 +2416,7 @@ function renderQuiz(step,dayData){
       <div class="content-block">
         <div class="block-title">😤 ${_quizContent.title}</div>
         <div class="ale-battle">
-          <div class="ale-icon-big">😤</div>
+          ${aleAvatar('reta')}
           <div class="ale-vs">VS</div>
           <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--pink);">¡Vos, Feli!</div>
           <div class="ale-bubble">"${_quizContent.taunt}"</div>
@@ -2417,7 +2540,7 @@ function endQuiz(){
     qs('#zone-content').innerHTML=`
       <div class="content-block">
         <div class="ale-battle">
-          <div class="ale-icon-big">${won?'🏳️':'😏'}</div>
+          ${aleAvatar(won?'pierde':'gana')}
           <div class="ale-bubble">"${msg}"</div>
           <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:${won?'var(--green)':'var(--yellow)'};">
             ${won?'¡GANASTE! 🏆':'¡Casi! 💪'}
@@ -2491,7 +2614,8 @@ function renderMelody(step,dayData){
   window.playMelodyNote=function(i){
     if(i!==window._melodyActive)return;
     const n=c.notes[i];
-    if(n.traste>=0) playString(STRING_DATA[5-Math.min(n.traste,5)]?.freq||330);
+    if(n.freq) playString(n.freq,.6);                  // tono exacto si la nota lo define
+    else if(n.traste>=0) playString(STRING_DATA[5-Math.min(n.traste,5)]?.freq||330);
     else playTone(600,.3);
     qs(`#ms-${i}`).classList.remove('active-step');
     qs(`#ms-${i}`).classList.add('done-step');
@@ -2506,6 +2630,109 @@ function renderMelody(step,dayData){
       playSuccess();
     }
   };
+}
+
+// ════════════════════════════════════════════
+// BONUS: FELIZ CUMPLEAÑOS
+// Melodía en Sol mayor, primera posición de guitarra (lo que se enseña a
+// principiantes). Cada nota trae su frecuencia real, su cuerda/traste y el
+// dedo, más la duración 'd' en pulsos para que suene reconocible.
+// ════════════════════════════════════════════
+const BIRTHDAY_NOTES=[
+  {n:'Re', f:146.83, l:'Que',  s:'Cuerda 4 al aire',   fg:'Sin pisar', d:.75},
+  {n:'Re', f:146.83, l:'los',  s:'Cuerda 4 al aire',   fg:'Sin pisar', d:.25},
+  {n:'Mi', f:164.81, l:'cum-', s:'Cuerda 4, traste 2', fg:'Dedo 2',    d:1},
+  {n:'Re', f:146.83, l:'plas', s:'Cuerda 4 al aire',   fg:'Sin pisar', d:1},
+  {n:'Sol',f:196.00, l:'fe-',  s:'Cuerda 3 al aire',   fg:'Sin pisar', d:1},
+  {n:'Fa#',f:185.00, l:'liz',  s:'Cuerda 4, traste 4', fg:'Dedo 4',    d:2},
+
+  {n:'Re', f:146.83, l:'Que',  s:'Cuerda 4 al aire',   fg:'Sin pisar', d:.75},
+  {n:'Re', f:146.83, l:'los',  s:'Cuerda 4 al aire',   fg:'Sin pisar', d:.25},
+  {n:'Mi', f:164.81, l:'cum-', s:'Cuerda 4, traste 2', fg:'Dedo 2',    d:1},
+  {n:'Re', f:146.83, l:'plas', s:'Cuerda 4 al aire',   fg:'Sin pisar', d:1},
+  {n:'La', f:220.00, l:'fe-',  s:'Cuerda 3, traste 2', fg:'Dedo 2',    d:1},
+  {n:'Sol',f:196.00, l:'liz',  s:'Cuerda 3 al aire',   fg:'Sin pisar', d:2},
+
+  {n:'Re', f:146.83, l:'Que',  s:'Cuerda 4 al aire',   fg:'Sin pisar', d:.75},
+  {n:'Re', f:146.83, l:'los',  s:'Cuerda 4 al aire',   fg:'Sin pisar', d:.25},
+  {n:'Re↑',f:293.66, l:'cum-', s:'Cuerda 2, traste 3', fg:'Dedo 3',    d:1},
+  {n:'Si', f:246.94, l:'plas', s:'Cuerda 2 al aire',   fg:'Sin pisar', d:1},
+  {n:'Sol',f:196.00, l:'Fe-',  s:'Cuerda 3 al aire',   fg:'Sin pisar', d:1},
+  {n:'Fa#',f:185.00, l:'li-',  s:'Cuerda 4, traste 4', fg:'Dedo 4',    d:1},
+  {n:'Mi', f:164.81, l:'ces',  s:'Cuerda 4, traste 2', fg:'Dedo 2',    d:2},
+
+  {n:'Do↑',f:261.63, l:'Que',  s:'Cuerda 2, traste 1', fg:'Dedo 1',    d:.75},
+  {n:'Do↑',f:261.63, l:'los',  s:'Cuerda 2, traste 1', fg:'Dedo 1',    d:.25},
+  {n:'Si', f:246.94, l:'cum-', s:'Cuerda 2 al aire',   fg:'Sin pisar', d:1},
+  {n:'Sol',f:196.00, l:'plas', s:'Cuerda 3 al aire',   fg:'Sin pisar', d:1},
+  {n:'La', f:220.00, l:'fe-',  s:'Cuerda 3, traste 2', fg:'Dedo 2',    d:1},
+  {n:'Sol',f:196.00, l:'liz',  s:'Cuerda 3 al aire',   fg:'Sin pisar', d:2},
+];
+
+let _bdayPlaying=false;
+const _bdayTimers=[];
+
+function openBirthday(){
+  renderBirthdayNotes();
+  qs('#bonus-screen').style.display='flex';
+  const btn=qs('#bonus-listen');
+  if(btn){btn.disabled=false;btn.textContent='▶️ Escuchar la canción';}
+  try{getAC();}catch(e){} // desbloquear audio con el gesto del usuario
+}
+function closeBirthday(){
+  stopBirthday();
+  qs('#bonus-screen').style.display='none';
+}
+function renderBirthdayNotes(){
+  qs('#bonus-notes').innerHTML=BIRTHDAY_NOTES.map((n,i)=>`
+    <button class="bday-step" id="bd-${i}" onclick="tapBirthday(${i})"
+            aria-label="Nota ${n.n}, ${n.l}. ${n.s}, ${n.fg}">
+      <div class="ms-note">${n.n}<span class="bday-lyric">${n.l}</span></div>
+      <div class="ms-info">
+        <div class="ms-string">${n.s}</div>
+        <div class="ms-finger">${n.fg}</div>
+      </div>
+      <div class="ms-check" aria-hidden="true">🎵</div>
+    </button>`).join('');
+}
+function tapBirthday(i){
+  const n=BIRTHDAY_NOTES[i];
+  if(!n)return;
+  try{getAC();}catch(e){}
+  playString(n.f,.6);
+  flashBirthdayNote(i);
+}
+function flashBirthdayNote(i){
+  const el=qs('#bd-'+i);
+  if(!el)return;
+  el.classList.add('active-step');
+  setTimeout(()=>el.classList.remove('active-step'),320);
+}
+function playBirthdayAll(){
+  if(_bdayPlaying)return;
+  _bdayPlaying=true;
+  const btn=qs('#bonus-listen');
+  if(btn){btn.disabled=true;btn.textContent='🎶 Sonando…';}
+  try{getAC();}catch(e){}
+  const beat=0.5; let t=0;
+  BIRTHDAY_NOTES.forEach((n,i)=>{
+    const dur=(n.d||1)*beat;
+    _bdayTimers.push(setTimeout(()=>{
+      playString(n.f,Math.max(.5,dur));
+      flashBirthdayNote(i);
+      qs('#bd-'+i)?.scrollIntoView({block:'nearest',behavior:'smooth'});
+    },t*1000));
+    t+=dur;
+  });
+  _bdayTimers.push(setTimeout(()=>{
+    _bdayPlaying=false;
+    if(btn){btn.disabled=false;btn.textContent='▶️ Escuchar otra vez';}
+  },t*1000+250));
+}
+function stopBirthday(){
+  _bdayTimers.forEach(clearTimeout);
+  _bdayTimers.length=0;
+  _bdayPlaying=false;
 }
 
 // ════════════════════════════════════════════
@@ -3153,6 +3380,11 @@ if(S.sessionDone&&S.currentDay<=30){
     startSession();
   }
 }
+
+// Cerrar el bonus con la tecla Escape (accesibilidad de teclado)
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && qs('#bonus-screen')?.style.display==='flex') closeBirthday();
+});
 
 // ── SERVICE WORKER REGISTRATION ──
 if('serviceWorker' in navigator){
