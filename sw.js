@@ -1,16 +1,23 @@
-const CACHE = 'guitarra-feli-v1';
+const CACHE = 'guitarra-feli-v2';
 
-// Cache the main page on install
+const ASSETS = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  './ale-reta.jpg',
+  './ale-gana.jpg',
+  './ale-pierde.jpg'
+];
+
+// Cache the main page + assets on install (resilient: a missing file won't break install)
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(c => c.addAll([
-        './',
-        './index.html',
-        './manifest.json',
-        './icon-192.png',
-        './icon-512.png'
-      ]))
+      .then(c => Promise.all(
+        ASSETS.map(url => c.add(url).catch(() => null))
+      ))
       .then(() => self.skipWaiting())
   );
 });

@@ -362,12 +362,14 @@ body::before{
   justify-content:center;gap:12px;
 }
 .ale-icon-big{
-  width:90px;height:90px;border-radius:50%;
+  width:120px;height:120px;border-radius:50%;
   background:linear-gradient(135deg,#FF4545,#C0392B);
   display:flex;align-items:center;justify-content:center;
-  font-size:3rem;border:3px solid rgba(255,255,255,.2);
+  font-size:3.5rem;border:3px solid rgba(255,255,255,.2);
   box-shadow:0 0 30px rgba(255,69,69,.5);
+  overflow:hidden;
 }
+.ale-photo{width:100%;height:100%;object-fit:cover;display:block;}
 .ale-bubble{
   background:rgba(255,69,69,.1);border:2px solid rgba(255,69,69,.3);
   border-radius:14px;padding:12px 16px;
@@ -832,6 +834,9 @@ const S = {
 };
 
 function save(){ try{localStorage.setItem('feli_v3',JSON.stringify(S));}catch(e){} }
+// Guardado extra de seguridad: al cerrar la app o cambiar de pestaña
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') save(); });
+window.addEventListener('pagehide',save);
 function load(){
   try{
     const d=localStorage.getItem('feli_v3');
@@ -2278,6 +2283,23 @@ function stopMetroBlock(){
 let quizTimer=null,quizTime=15,quizPaused=false,quizIdx=0,quizScore=0,quizQs=[];
 let _quizContent=null,_quizIsAle=false; // context stored here, not in HTML
 
+// ── Fotos del Tío Ale ──
+// Subí 3 fotos al repo con EXACTAMENTE estos nombres (en la carpeta raíz):
+//   ale-reta.jpg   → cara provocando / desafiante (se ve al empezar la batalla)
+//   ale-gana.jpg   → cara festejando / ganador   (se ve cuando Feli PIERDE)
+//   ale-pierde.jpg → cara derrotado / rendido     (se ve cuando Feli GANA)
+// Si todavía no subiste alguna, se muestra un emoji como respaldo automático.
+const ALE_FACES={
+  reta:  {img:'ale-reta.jpg',  emoji:'😤'},
+  gana:  {img:'ale-gana.jpg',  emoji:'😏'},
+  pierde:{img:'ale-pierde.jpg',emoji:'🏳️'},
+};
+function aleAvatar(key){
+  const f=ALE_FACES[key]||ALE_FACES.reta;
+  // onerror: si la foto no existe todavía, la reemplaza por el emoji centrado
+  return `<div class="ale-icon-big"><img src="${f.img}" alt="Tío Ale" class="ale-photo" onerror="this.replaceWith('${f.emoji}')"></div>`;
+}
+
 const QUIZ_TOTAL_TIME=60;
 const TIMER_CIRC=144.5; // stroke-dasharray of r=23 circle
 
@@ -2293,7 +2315,7 @@ function renderQuiz(step,dayData){
       <div class="content-block">
         <div class="block-title">😤 ${_quizContent.title}</div>
         <div class="ale-battle">
-          <div class="ale-icon-big">😤</div>
+          ${aleAvatar('reta')}
           <div class="ale-vs">VS</div>
           <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--pink);">¡Vos, Feli!</div>
           <div class="ale-bubble">"${_quizContent.taunt}"</div>
@@ -2417,7 +2439,7 @@ function endQuiz(){
     qs('#zone-content').innerHTML=`
       <div class="content-block">
         <div class="ale-battle">
-          <div class="ale-icon-big">${won?'🏳️':'😏'}</div>
+          ${aleAvatar(won?'pierde':'gana')}
           <div class="ale-bubble">"${msg}"</div>
           <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:${won?'var(--green)':'var(--yellow)'};">
             ${won?'¡GANASTE! 🏆':'¡Casi! 💪'}
