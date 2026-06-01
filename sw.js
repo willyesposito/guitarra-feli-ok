@@ -1,4 +1,4 @@
-const CACHE = 'guitarra-feli-v2';
+const CACHE = 'guitarra-feli-v3';
 
 const ASSETS = [
   './',

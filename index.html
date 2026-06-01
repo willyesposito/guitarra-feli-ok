@@ -859,6 +859,99 @@ body::before{animation:twinkle 7s ease-in-out infinite;}
 /* Pequeño respiro al aparecer cada bloque */
 .content-block{animation:fadeIn .35s ease, floatUp .6s ease;}
 @keyframes floatUp{from{transform:translateY(4px);}to{transform:translateY(0);}}
+
+/* ════════ HOME / MENÚ PRINCIPAL ════════ */
+#home-screen,#levels-screen{
+  position:relative;z-index:60;display:none;flex-direction:column;
+  max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;
+  padding:max(24px,env(safe-area-inset-top)) 20px max(24px,env(safe-area-inset-bottom));
+}
+#home-screen{justify-content:center;}
+.home-inner{display:flex;flex-direction:column;align-items:center;animation:fadeIn .4s ease;}
+.home-logo{
+  font-size:3.6rem;line-height:1;
+  filter:drop-shadow(0 8px 26px rgba(168,85,247,.6));
+  animation:floatLogo 4.5s ease-in-out infinite;
+}
+@keyframes floatLogo{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-9px) rotate(5deg);}}
+.home-title{
+  font-family:'Fredoka One',cursive;font-size:2rem;margin-top:4px;
+  background:linear-gradient(135deg,var(--pink),var(--yellow));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 12px rgba(255,107,157,.5));
+}
+.home-sub{font-size:.82rem;color:var(--muted);font-weight:800;margin-top:2px;}
+.home-stats{display:flex;gap:8px;margin:14px 0 18px;width:100%;}
+.home-stat{
+  flex:1;text-align:center;padding:10px 4px;border-radius:14px;
+  background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 8px 20px rgba(8,3,20,.35),inset 0 1px 0 rgba(255,255,255,.10);
+}
+.home-stat b{display:block;font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--yellow);line-height:1;}
+.home-stat span{font-size:.6rem;color:var(--muted);font-weight:700;}
+.home-menu{display:flex;flex-direction:column;gap:10px;width:100%;}
+.home-btn{
+  display:flex;align-items:center;gap:13px;text-align:left;
+  padding:14px 16px;border-radius:16px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:0 8px 22px rgba(8,3,20,.35),inset 0 1px 0 rgba(255,255,255,.10);
+  color:var(--text);font-family:'Nunito',sans-serif;transition:all .2s;
+}
+.home-btn:hover{transform:translateY(-2px);filter:brightness(1.08);}
+.home-btn:active{transform:translateY(0);}
+.home-btn .hb-ico{font-size:1.7rem;flex-shrink:0;width:34px;text-align:center;}
+.home-btn .hb-txt{display:flex;flex-direction:column;}
+.home-btn .hb-txt b{font-size:1rem;font-weight:800;}
+.home-btn .hb-txt small{font-size:.72rem;color:var(--muted);font-weight:700;}
+.home-btn-go{background:linear-gradient(135deg,var(--pink),var(--purple));border-color:transparent;}
+.home-btn-go .hb-txt small{color:rgba(255,255,255,.88);}
+.home-btn-reset{opacity:.8;}
+.home-btn-reset .hb-txt b{color:var(--muted);}
+
+/* ════════ ELEGIR EJERCICIO ════════ */
+.levels-inner{display:flex;flex-direction:column;width:100%;height:100%;min-height:0;flex:1;}
+.levels-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-shrink:0;}
+.levels-back{
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;
+  border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);
+  color:var(--text);font-size:1.3rem;cursor:pointer;transition:all .2s;
+}
+.levels-back:hover{background:rgba(255,255,255,.13);transform:translateX(-2px);}
+.levels-title{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--yellow);}
+.levels-list{display:flex;flex-direction:column;gap:9px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:10px;flex:1;min-height:0;}
+.level-card{
+  display:flex;align-items:center;gap:12px;text-align:left;width:100%;
+  padding:12px 14px;border-radius:14px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+  box-shadow:0 6px 16px rgba(8,3,20,.30),inset 0 1px 0 rgba(255,255,255,.08);
+  color:var(--text);font-family:'Nunito',sans-serif;transition:all .2s;
+}
+.level-card:hover:not(:disabled){transform:translateY(-2px);border-color:var(--pink);}
+.level-card.cur{border-color:var(--teal);box-shadow:0 0 14px rgba(78,205,196,.4);}
+.level-card:disabled{opacity:.45;cursor:not-allowed;}
+.level-card .lv-num{
+  width:38px;height:38px;flex-shrink:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--yellow);
+  background:rgba(255,255,255,.08);
+}
+.level-card .lv-txt{display:flex;flex-direction:column;flex:1;min-width:0;}
+.level-card .lv-txt b{font-size:.95rem;font-weight:800;}
+.level-card .lv-txt small{font-size:.75rem;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.level-card .lv-tag{
+  font-size:.6rem;font-weight:800;color:var(--teal);
+  background:rgba(78,205,196,.15);padding:3px 9px;border-radius:50px;
+  border:1px solid rgba(78,205,196,.3);flex-shrink:0;
+}
+.hdr-home{
+  background:none;border:none;cursor:pointer;font-size:1.3rem;
+  padding:2px;line-height:1;filter:grayscale(.1);transition:transform .2s;
+}
+.hdr-home:hover{transform:scale(1.15);}
 </style>
 </head>
 <body>
@@ -894,6 +987,7 @@ body::before{animation:twinkle 7s ease-in-out infinite;}
     <div class="lock-tomorrow" id="lock-tomorrow">🌅 Mañana: ¡nueva sesión!</div>
     <div class="lock-next-day" id="lock-next-day"></div>
     <button onclick="openPrevPanel()" style="margin-top:12px;padding:10px 20px;border-radius:12px;border:2px solid rgba(255,255,255,.12);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;transition:all .2s;" onmouseover="this.style.color=getComputedStyle(document.documentElement).getPropertyValue('--text')" onmouseout="this.style.color=''">📚 Rehacer un día anterior</button>
+    <button class="lock-cake-btn" onclick="goHome()" style="margin-top:8px;">🏠 Volver al menú</button>
     <button class="lock-cake-btn" onclick="openBirthday()">🎂 Tocar "Feliz Cumpleaños"</button>
     <div style="display:flex;gap:10px;margin-top:14px;width:100%;max-width:320px;">
       <button onclick="exportProgress()" style="flex:1;padding:10px;border-radius:12px;border:2px solid rgba(255,255,255,.1);background:var(--card2);color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;font-size:.8rem;cursor:pointer;">📥 Guardar progreso</button>
@@ -961,6 +1055,7 @@ body::before{animation:twinkle 7s ease-in-out infinite;}
         <div class="hdr-rank" id="hdr-rank"><span id="hdr-rank-icon">🐭</span> Judy Hopps Rookie</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
+        <button class="hdr-home" onclick="goHome()" aria-label="Volver al menú principal" title="Menú principal">🏠</button>
         <button class="hdr-cake" onclick="openBirthday()" aria-label="Tocar Feliz Cumpleaños">🎂</button>
         <div class="hdr-stars" aria-label="Estrellas">⭐ <span id="hdr-stars">0</span></div>
       </div>
@@ -976,6 +1071,49 @@ body::before{animation:twinkle 7s ease-in-out infinite;}
   <!-- FOOTER -->
   <div id="zone-footer">
     <button class="main-btn" id="main-btn" onclick="handleMainBtn()">Siguiente →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     HOME / MENÚ PRINCIPAL
+════════════════════════════════════ -->
+<div id="home-screen">
+  <div class="home-inner">
+    <div class="home-logo">🎸</div>
+    <div class="home-title">Guitarra de Feli</div>
+    <div class="home-sub" id="home-sub">¡Hola, Feli!</div>
+    <div class="home-stats" id="home-stats"></div>
+    <div class="home-menu">
+      <button class="home-btn home-btn-go" onclick="continueGame()">
+        <span class="hb-ico">▶️</span>
+        <span class="hb-txt"><b>Continuar</b><small id="home-continue-lbl">Seguir donde quedaste</small></span>
+      </button>
+      <button class="home-btn" onclick="openLevels()">
+        <span class="hb-ico">🎯</span>
+        <span class="hb-txt"><b>Elegir ejercicio</b><small>Practicá el día que quieras</small></span>
+      </button>
+      <button class="home-btn" onclick="openBirthday()">
+        <span class="hb-ico">🎂</span>
+        <span class="hb-txt"><b>Feliz Cumpleaños</b><small>Tocá la canción especial</small></span>
+      </button>
+      <button class="home-btn home-btn-reset" onclick="askPin('all')">
+        <span class="hb-ico">🔄</span>
+        <span class="hb-txt"><b>Empezar de cero</b><small>Borrar todo el progreso</small></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ELEGIR EJERCICIO
+════════════════════════════════════ -->
+<div id="levels-screen">
+  <div class="levels-inner">
+    <div class="levels-head">
+      <button class="levels-back" onclick="closeLevels()" aria-label="Volver al menú">←</button>
+      <div class="levels-title">🎯 Elegí un ejercicio</div>
+    </div>
+    <div class="levels-list" id="levels-list"></div>
   </div>
 </div>
 
@@ -2920,8 +3058,12 @@ function lockSession(dayData){
   clearInterval(quizTimer);quizTimer=null;
 
   S.sessionDone=true;
-  S.daysCompleted++;
-  S.streak++;
+  // Solo avanzar el progreso si es un día NUEVO (no al rehacer uno anterior),
+  // así elegir un ejercicio viejo no infla días/racha ni desbloquea de más.
+  if(S.currentDay>S.daysCompleted){
+    S.daysCompleted=S.currentDay;
+    S.streak++;
+  }
   save();
   showLocked(dayData);
 }
@@ -3115,7 +3257,106 @@ function doResetAll(){
   });
   save();
   showToast('⚠️ Progreso reiniciado — ¡Día 1!');
-  goToApp();
+  showHome();
+}
+
+// ════════════════════════════════════════════
+// HOME / MENÚ PRINCIPAL
+// ════════════════════════════════════════════
+function hideAllScreens(){
+  ['app','locked-screen','home-screen','levels-screen','pin-modal'].forEach(id=>{
+    const el=qs('#'+id); if(el) el.style.display='none';
+  });
+  // Stop any lingering timers (igual que goToApp)
+  clearInterval(gInt);gInt=null;
+  clearInterval(metroInt);metroInt=null;
+  clearInterval(quizTimer);quizTimer=null;
+}
+
+// Volver al menú principal (desde un ejercicio o la pantalla de descanso)
+function goHome(){
+  save();
+  showHome();
+}
+
+function showHome(){
+  hideAllScreens();
+  refreshHome();
+  qs('#home-screen').style.display='flex';
+}
+
+function refreshHome(){
+  // Día desbloqueado más alto = días completados + 1 (tope 30)
+  const maxDay=Math.min(S.daysCompleted+1,30);
+  const cur=Math.min(S.currentDay,30);
+  const day=DAYS[cur-1];
+  const lbl=qs('#home-continue-lbl');
+  if(lbl) lbl.textContent='Día '+cur+(day?.title?' — '+day.title:'');
+  const sub=qs('#home-sub');
+  if(sub){const r=getRank();sub.textContent=r.icon+' '+r.name;}
+  const st=qs('#home-stats');
+  if(st) st.innerHTML=
+    '<div class="home-stat"><b>'+S.stars+'</b><span>⭐ Estrellas</span></div>'+
+    '<div class="home-stat"><b>'+S.daysCompleted+'</b><span>📅 Días</span></div>'+
+    '<div class="home-stat"><b>'+S.streak+'</b><span>🔥 Racha</span></div>';
+}
+
+// Continuar donde quedó
+function continueGame(){
+  hideAllScreens();
+  if(S.currentDay>30){ // curso terminado
+    qs('#app').style.display='flex';
+    startSession();
+    return;
+  }
+  // Si ya había terminado la sesión de hoy, mostrar la pantalla de descanso
+  if(S.sessionDone){
+    const dayData=DAYS[S.currentDay-1];
+    showLocked(dayData);
+  } else {
+    qs('#app').style.display='flex';
+    startSession();
+  }
+}
+
+// Elegir ejercicio
+function openLevels(){
+  const maxDay=Math.min(S.daysCompleted+1,30);
+  const list=qs('#levels-list');
+  if(list){
+    list.innerHTML='';
+    DAYS.forEach((day,idx)=>{
+      const n=idx+1;
+      const locked=n>maxDay;
+      const done=n<=S.daysCompleted;
+      const isCur=n===Math.min(S.currentDay,30) && !S.sessionDone;
+      const b=document.createElement('button');
+      b.className='level-card'+(isCur?' cur':'');
+      b.disabled=locked;
+      if(!locked) b.onclick=()=>startDay(n);
+      const tag=isCur?'<span class="lv-tag">actual</span>'
+        :done?'<span class="lv-tag" style="color:var(--green);background:rgba(74,222,128,.15);border-color:rgba(74,222,128,.3)">hecho</span>'
+        :'';
+      b.innerHTML='<span class="lv-num">'+(locked?'🔒':done?'✅':n)+'</span>'+
+        '<span class="lv-txt"><b>Día '+n+'</b><small>'+day.title+'</small></span>'+tag;
+      list.appendChild(b);
+    });
+  }
+  hideAllScreens();
+  qs('#levels-screen').style.display='flex';
+}
+function closeLevels(){ showHome(); }
+
+// Empezar un día puntual (rehace sin inflar el progreso, igual que doReplayDay)
+function startDay(n){
+  const maxDay=Math.min(S.daysCompleted+1,30);
+  if(n>maxDay) return;
+  S.currentDay=n;
+  S.currentStep=0;
+  S.sessionDone=false;
+  save();
+  hideAllScreens();
+  qs('#app').style.display='flex';
   startSession();
 }
 
@@ -3459,20 +3700,9 @@ function importProgress(e){
 // ════════════════════════════════════════════
 load();
 
-// Check if session was already done (show locked)
-if(S.sessionDone&&S.currentDay<=30){
-  const dayData=DAYS[S.currentDay-1];
-  showLocked(dayData);
-} else {
-  if(S.currentDay>30){
-    qs('#app').style.display='flex';
-    qs('#zone-content').innerHTML=`<div class="content-block"><div class="complete-block"><div class="complete-emoji">🎓</div><div class="complete-title">¡Completaste el curso!</div><div class="complete-learned">30 días de guitarra. Sos una guitarrista de verdad.</div><div class="complete-stars">⭐ ${S.stars} estrellas totales</div></div></div>`;
-    setMainBtn('🎸 ¡Seguí tocando!','','',false);
-  } else {
-    qs('#app').style.display='flex';
-    startSession();
-  }
-}
+// Al arrancar siempre mostramos el menú principal.
+// Desde ahí Feli puede continuar, elegir ejercicio o empezar de cero.
+showHome();
 
 // Cerrar el bonus con la tecla Escape (accesibilidad de teclado)
 document.addEventListener('keydown',e=>{
