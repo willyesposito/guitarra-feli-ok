@@ -1,21 +1,18 @@
-const CACHE = 'guitarra-feli-v3';
+const CACHE = 'guitarra-adulto-v1';
 
-// Solo borramos cachés de ESTA app: en el mismo dominio vive la app para
-// adultos (/adulto/) y el almacenamiento es compartido.
-const CACHE_PREFIX = 'guitarra-feli-';
+// Solo borramos cachés de ESTA app. La app de Feli vive en el mismo dominio
+// y comparte el almacenamiento: si borráramos todo, la dejaríamos sin offline.
+const CACHE_PREFIX = 'guitarra-adulto-';
 
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png',
-  './ale-reta.jpg',
-  './ale-gana.jpg',
-  './ale-pierde.jpg'
+  './icon-512.png'
 ];
 
-// Cache the main page + assets on install (resilient: a missing file won't break install)
+// Al instalar, guardamos la app entera (si falta un archivo, no rompe la instalación)
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
@@ -26,7 +23,7 @@ self.addEventListener('install', e => {
   );
 });
 
-// Delete old caches on activate
+// Al activar, limpiamos solo las versiones viejas de esta app
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
@@ -38,12 +35,11 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Network first, fallback to cache
+// Primero la red, y si no hay internet, lo guardado
 self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request)
       .then(res => {
-        // Save fresh copy in cache
         if(res && res.status === 200){
           const clone = res.clone();
           caches.open(CACHE).then(c => c.put(e.request, clone));
